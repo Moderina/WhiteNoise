@@ -11,6 +11,8 @@ import android.graphics.ColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -140,14 +142,20 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             if (!player.isPlaying()) {
                 miniplayerView.setVisibility(View.VISIBLE);
                 activity.startService(notificationIntent);
+                player.setMediaItems(getMediaItems(), position, 0);
+                player.prepare();
+                player.play();
+                checkToKeepAppAlive();
+
             }
             else {
                 player.pause();
+                player.setMediaItems(getMediaItems(), position, 0);
+                player.prepare();
+                player.play();
             }
 //            playerViewManager.loadSongData(songData);
-            player.setMediaItems(getMediaItems(), position, 0);
-            player.prepare();
-            player.play();
+
 
 
             Toast.makeText(activity, songData.getPath(), Toast.LENGTH_SHORT).show();
@@ -157,6 +165,22 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.name_change.setOnClickListener(view -> {
             ChangeSongNameWindow(holder, songData);
         });
+    }
+
+    private void checkToKeepAppAlive() {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        Log.wtf("loser", "loser");
+        Runnable runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                Log.wtf("losser", "losser");
+                if (!player.isPlaying()) {
+                    activity.stopService(notificationIntent);
+                }
+                handler.postDelayed(this, 600000);
+            }
+        };
+        handler.postDelayed(runnableCode, 600000);
     }
 
     private void ChangeSongNameWindow(ViewHolder holder, Song songData) {
