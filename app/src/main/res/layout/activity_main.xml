@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:background="#30323C">
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingHorizontal="50dp"
+        android:background="#2E3039"
+        android:outlineAmbientShadowColor="#000000"
+        android:elevation="20dp">
+
+        <ImageView
+            android:id="@+id/knuck"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/knuckles">
+        </ImageView>
+
+        <ImageView
+            android:id="@+id/knuck2"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/knuckles"
+            app:layout_constraintEnd_toEndOf="parent">
+        </ImageView>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/toolbar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@id/knuck"
+            app:layout_constraintEnd_toStartOf="@id/knuck2">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:searchIcon="@drawable/search">
+            </androidx.appcompat.widget.SearchView>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/no_songs"
+        android:text="NO SONGS FOUND"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAlignment="center"
+        android:visibility="invisible"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mini_player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/min_music_bar"
+        android:paddingTop="8dp"
+        android:paddingHorizontal="12dp"
+        android:elevation="100dp"
+        android:outlineAmbientShadowColor="#FF0000"
+        android:visibility="visible">
+
+        <ImageView
+            android:id="@+id/mini_song_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/knuckles">
+
+        </ImageView>
+
+        <TextView
+            android:id="@+id/mini_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            android:layout_marginLeft="12dp"
+            android:layout_marginVertical="3dp"
+            android:text="song title"
+            android:textSize="20dp"
+            android:textColor="#B8B8B8"
+            android:singleLine="true"
+            android:ellipsize="marquee">
+        </TextView>
+
+        <TextView
+            android:id="@+id/mini_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/mini_title"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            android:layout_marginLeft="13dp"
+            android:text="song title"
+            android:textSize="12dp"
+            android:textColor="#B8B8B8"
+            android:singleLine="true"
+            android:ellipsize="marquee">
+        </TextView>
+
+        <ImageView
+            android:id="@+id/play_pause_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/progress_bar"
+            android:layout_marginBottom="-8dp"
+            android:scaleY="0.6"
+            android:scaleX="0.6"
+            android:src="@drawable/play_icon"
+            app:tint="@color/fakewhite">
+        </ImageView>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            app:layout_constraintTop_toBottomOf="@id/mini_artist"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:paddingLeft="16dp"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:outlineAmbientShadowColor="#FFFFFF"
+            android:outlineSpotShadowColor="@color/white"
+            android:progress="70"
+            android:max="100"
+            android:elevation="100dp">
+
+        </ProgressBar>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <include layout="@layout/all_song_recycler"/>
+    <include layout="@layout/activity_music_player"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
