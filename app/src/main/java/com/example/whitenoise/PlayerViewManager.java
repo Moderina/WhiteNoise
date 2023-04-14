@@ -3,20 +3,19 @@ package com.example.whitenoise;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothHeadset;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
+
+import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Parcelable;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -193,7 +192,9 @@ public class PlayerViewManager extends ConstraintLayout {
                         playPause.performClick();
                         Btstatus = false;
                     }
-                    else if (isBluetoothHeadsetConnected() && !Btstatus) Btstatus = true;
+                    else if (isBluetoothHeadsetConnected() && !Btstatus) {
+                        Btstatus = true;
+                    }
                 }
                 handler.postDelayed(this, 10);
             }

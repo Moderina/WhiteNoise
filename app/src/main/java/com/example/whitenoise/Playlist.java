@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Playlist implements Serializable {
     String name;
-    ArrayList<String> songs;
+    ArrayList<String> songs = new ArrayList<>();
 
     public Playlist(String name) {
         this.name = name;
@@ -23,4 +23,6 @@ public class Playlist implements Serializable {
     public void removeSong(String song) {
         songs.remove(song);
     }
+
+    public String getName() {return name;}
 }

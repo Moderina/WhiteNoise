@@ -59,8 +59,9 @@ public class MainActivity extends AppCompatActivity {
     IntentFilter filter;
 
     //main variables
-    RecyclerView recyclerView;
+    RecyclerView recyclerView, playlistRecyclerView;
     MusicListAdapter songListAdapter;
+    PlaylistAdapter playlistAdapter;
     SearchView searchView;
     ImageView barLeftBtn, barRightBtn;
     ArrayList<Song> allSongs = new ArrayList<>();
@@ -119,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(ColorUtils.setAlphaComponent(37489, 199));
 
         recyclerView = findViewById(R.id.recycler_view);
+        playlistRecyclerView = findViewById(R.id.playlist_recycler_view);
         noMusicTextView = findViewById(R.id.no_songs);
         searchView = findViewById(R.id.search_view);
         barLeftBtn = findViewById(R.id.knuck);
@@ -160,11 +162,12 @@ public class MainActivity extends AppCompatActivity {
         searchViewChange(searchView);
         appControls();
         playerControls();
-
+        loadSongsView();
     }
 
     @Override
     protected void onDestroy() {
+        allPlaylists = songListAdapter.getUpdatedPlaylists();
         serializeSongData();
         super.onDestroy();
         if (player.isPlaying()) player.stop();
@@ -207,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             FileInputStream fis = openFileInput("playlistData.ser");
             ObjectInputStream ois = new ObjectInputStream(fis);
-            serialized = (ArrayList<Song>) ois.readObject();
+            allPlaylists = (ArrayList<Playlist>) ois.readObject();
             ois.close();
             fis.close();
         } catch (Exception e) {
@@ -261,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void appControls() {
 
-        barLeftBtn.setOnClickListener(view -> {fetch_songs();});
+        barLeftBtn.setOnClickListener(view -> {loadSongsView();});
         barRightBtn.setOnClickListener(view -> {loadPlaylistView();});
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -275,8 +278,26 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
-    private void loadPlaylistView() {
+    private void loadSongsView() {
+        playerView.setVisibility(View.GONE);
+        miniPlayerView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
+        Log.wtf("up", String.valueOf(playlistRecyclerView));
+        playlistRecyclerView.setVisibility(View.GONE);
+    }
 
+
+    private void loadPlaylistView() {
+        playerView.setVisibility(View.GONE);
+        miniPlayerView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        playlistRecyclerView.setVisibility(View.VISIBLE);
+
+//        allPlaylists.clear();
+//        allPlaylists = songListAdapter.getUpdatedPlaylists();
+        for (Playlist pl : allPlaylists) {
+            Log.wtf("stop this pain tonight", pl.getName());
+        }
     }
 
 
@@ -355,8 +376,11 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        songListAdapter = new MusicListAdapter(this, allSongs, getApplicationContext(), player, playerView, miniPlayerView, view_manager, notificationIntent);
+        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, playerView, miniPlayerView, view_manager, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
+
+        playlistAdapter = new PlaylistAdapter(this, allPlaylists);
+        playlistRecyclerView.setAdapter(playlistAdapter);
 
     }
 

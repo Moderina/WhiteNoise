@@ -1,13 +1,10 @@
 package com.example.whitenoise;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
@@ -28,16 +25,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
-
-import org.jetbrains.annotations.NonNls;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +38,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
 
     MainActivity activity;
     ArrayList<Song> songList;
+    ArrayList<Playlist> playlistsList;
     Context context;
     Intent notificationIntent;
     ExoPlayer player;
@@ -55,9 +48,10 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     PlayerViewManager playerViewManager;
     int selectedItem = RecyclerView.NO_POSITION;
 
-    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, Context context, ExoPlayer player, ConstraintLayout playerView, ConstraintLayout miniplayerView, PlayerViewManager playerViewManager, Intent notificationIntent) {
+    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, Context context, ExoPlayer player, ConstraintLayout playerView, ConstraintLayout miniplayerView, PlayerViewManager playerViewManager, Intent notificationIntent) {
         this.activity = activity;
         this.songList = songList;
+        this.playlistsList = allPlaylists;
         this.context = context;
         this.player = player;
         this.playerView = playerView;
@@ -79,7 +73,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         TextView titleTextView, artistTextView;
         CardView cardView;
         ImageView neonbar;
-        ImageView name_change;
+        ImageView name_change, playlistAdd;
         //        ImageView iconImageView;
         public ViewHolder(View itemView) {
 
@@ -89,6 +83,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             cardView = itemView.findViewById(R.id.song_card);
             neonbar = itemView.findViewById(R.id.side_line);
             name_change = itemView.findViewById(R.id.name_change);
+            playlistAdd = itemView.findViewById(R.id.playlist_add);
 //            iconImageView = itemView.findViewById(R.id.icon);
         }
     }
@@ -129,6 +124,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             public boolean onLongClick(View view) {
 //                Toast.makeText(context, "Deep end", Toast.LENGTH_SHORT).show();
                 holder.name_change.setVisibility(View.VISIBLE);
+                holder.playlistAdd.setVisibility(View.VISIBLE);
                 int prev = selectedItem;
                 selectedItem = position;
                 notifyItemChanged(prev);
@@ -137,7 +133,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         });
 
         holder.itemView.setOnClickListener(view -> {
-//            miniplayerView.setVisibility(View.VISIBLE);
             Log.wtf("path to self dest", songData.getPath());
             if (!player.isPlaying()) {
                 miniplayerView.setVisibility(View.VISIBLE);
@@ -146,7 +141,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 player.prepare();
                 player.play();
                 checkToKeepAppAlive();
-
             }
             else {
                 player.pause();
@@ -165,6 +159,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.name_change.setOnClickListener(view -> {
             ChangeSongNameWindow(holder, songData);
         });
+        holder.playlistAdd.setOnClickListener(view -> {AddSongToPlaylist(holder, songData);});
     }
 
     private void checkToKeepAppAlive() {
@@ -218,6 +213,37 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         });
     }
 
+    private void AddSongToPlaylist(ViewHolder holder, Song songData) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        View view = LayoutInflater.from(activity).inflate(R.layout.add_song_to_playlist, null);
+        final EditText new_name = view.findViewById(R.id.new_playlist_name);
+        Button saveButton = view.findViewById(R.id.save_button);
+
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.show();
+            }
+        });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = new_name.getText().toString();
+                Playlist playlist = new Playlist(title);
+                playlist.addSong(songData.getPath());
+                dialog.dismiss();
+                playlistsList.add(playlist);
+                for (Playlist pl : playlistsList) {
+                    Log.wtf("dammit", pl.getName());
+                }
+            }
+        });
+    }
+
     private int createColor(Song songData) {
         if (songData.getTitle().length() < 3) {
             int color = 0xFFFF0000;
@@ -262,5 +288,13 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     @Override
     public int getItemCount() {
         return songList.size();
+    }
+
+    public ArrayList<Playlist> getUpdatedPlaylists() {
+        Log.wtf("losing", "failing");
+        for (Playlist pl : playlistsList) {
+            Log.wtf("dammit", pl.getName());
+        }
+        return playlistsList;
     }
 }
