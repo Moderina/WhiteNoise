@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     IntentFilter filter;
 
     //main variables
-    RecyclerView recyclerView, playlistRecyclerView;
+    RecyclerView recyclerView, playlistRecyclerView, playlistSongListRecyclerView;
     MusicListAdapter songListAdapter;
     PlaylistAdapter playlistAdapter;
     SearchView searchView;
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     TextView noMusicTextView;
 
     //main layouts
-    ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView;
+    ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView, playlistView;
 
 
     //music View variables
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recycler_view);
         playlistRecyclerView = findViewById(R.id.playlist_recycler_view);
+        playlistSongListRecyclerView = findViewById(R.id.playlist_songlist_recyclerview);
         noMusicTextView = findViewById(R.id.no_songs);
         searchView = findViewById(R.id.search_view);
         barLeftBtn = findViewById(R.id.knuck);
@@ -147,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
         //wrappers
         recyclerViewLayout = findViewById(R.id.recycler_layout);
+        playlistView = findViewById(R.id.playlist_view);
         playerView = findViewById(R.id.player_view);
         appBarView = findViewById(R.id.appbar);
         miniPlayerView = findViewById(R.id.mini_player);
@@ -284,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setVisibility(View.VISIBLE);
         Log.wtf("up", String.valueOf(playlistRecyclerView));
         playlistRecyclerView.setVisibility(View.GONE);
+        playlistSongListRecyclerView.setVisibility(View.GONE);
     }
 
 
@@ -292,6 +296,15 @@ public class MainActivity extends AppCompatActivity {
         miniPlayerView.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
         playlistRecyclerView.setVisibility(View.VISIBLE);
+        playlistSongListRecyclerView.setVisibility(View.GONE);
+
+
+        if (playlistAdapter == null) {
+
+
+        }
+
+//        playlistAdapter.onViewFocused(allPlaylists);
 
 //        allPlaylists.clear();
 //        allPlaylists = songListAdapter.getUpdatedPlaylists();
@@ -375,11 +388,14 @@ public class MainActivity extends AppCompatActivity {
         allSongs.addAll(songs);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, playerView, miniPlayerView, view_manager, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
+        playlistSongListRecyclerView.setAdapter(songListAdapter);
 
-        playlistAdapter = new PlaylistAdapter(this, allPlaylists);
+        playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistSongListRecyclerView);
         playlistRecyclerView.setAdapter(playlistAdapter);
 
     }

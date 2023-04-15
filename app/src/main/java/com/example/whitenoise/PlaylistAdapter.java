@@ -5,11 +5,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -17,27 +15,26 @@ import java.util.ArrayList;
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHolder>{
 
     Context context;
-    ArrayList<Playlist> allPlaylists;
+    ArrayList<Playlist> playlistList;
+    RecyclerView playlistSongListRecyclerView;
 
-    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists) {
+    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, RecyclerView playlistSongListRecyclerView) {
         this.context = context;
-        this.allPlaylists = allPlaylists;
+        this.playlistList = allPlaylists;
+        this.playlistSongListRecyclerView = playlistSongListRecyclerView;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Log.wtf("delusions", "of my mind");
         View view = LayoutInflater.from(context).inflate(R.layout.playlist_element, parent, false);
-//        view.findViewById(R.id.song_card).setAnimation(animation);
         return new ViewHolder(view);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{ //nw cz ma byc static
 
-        TextView name, artistTextView;
-        CardView cardView;
-        ImageView icon;
-        ImageView name_change, playlistAdd;
-        //        ImageView iconImageView;
+        TextView name;
         public ViewHolder(View itemView) {
 
             super(itemView);
@@ -46,15 +43,29 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlaylistAdapter.ViewHolder holder, int position) {
-        Playlist playlistData = allPlaylists.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Playlist playlistData = playlistList.get(position);
         Log.wtf("fuck", playlistData.getName());
         holder.name.setText(playlistData.getName());
+
+        holder.itemView.setOnClickListener(view -> {createPlaylistSongList();});
     }
+
+    private void createPlaylistSongList() {
+        playlistSongListRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+//    public void onViewFocused(ArrayList<Playlist> allPlaylists) {
+//        this.playlistList = allPlaylists;
+//        for (Playlist pl : playlistList) {
+//            Log.wtf("wish i hated you", pl.getName());
+//        }
+//        notifyDataSetChanged();
+//    }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return playlistList.size();
     }
 
 }

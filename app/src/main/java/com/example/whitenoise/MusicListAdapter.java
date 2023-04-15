@@ -104,21 +104,8 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.neonbar.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
 
         holder.name_change.setVisibility(View.GONE);
+        holder.playlistAdd.setVisibility(View.GONE);
 
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-////                Media_Player.getInstance().reset();
-////                Media_Player.currentIndex = holder.getAdapterPosition();
-//                Intent intent = new Intent(context, Music_PlayerActivity.class);
-//                intent.putExtra("LIST", songList);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                context.startActivity(intent);
-//                Toast.makeText(context, intent.getComponent().getClassName(), Toast.LENGTH_SHORT).show();
-//
-//            }
-//        });
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
