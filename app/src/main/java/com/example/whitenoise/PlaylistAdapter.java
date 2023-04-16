@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -16,12 +17,14 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
 
     Context context;
     ArrayList<Playlist> playlistList;
-    RecyclerView playlistSongListRecyclerView;
+    ConstraintLayout playlistView;
+    MusicListAdapter songListAdapter;
 
-    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, RecyclerView playlistSongListRecyclerView) {
+    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, ConstraintLayout playlistView, MusicListAdapter songListAdapter) {
         this.context = context;
         this.playlistList = allPlaylists;
-        this.playlistSongListRecyclerView = playlistSongListRecyclerView;
+        this.playlistView = playlistView;
+        this.songListAdapter = songListAdapter;
     }
 
     @NonNull
@@ -48,11 +51,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
         Log.wtf("fuck", playlistData.getName());
         holder.name.setText(playlistData.getName());
 
-        holder.itemView.setOnClickListener(view -> {createPlaylistSongList();});
+        holder.itemView.setOnClickListener(view -> {createPlaylistSongList(playlistData);});
     }
 
-    private void createPlaylistSongList() {
-        playlistSongListRecyclerView.setVisibility(View.VISIBLE);
+    private void createPlaylistSongList(Playlist playlist) {
+        playlistView.setVisibility(View.VISIBLE);
+        Log.wtf("keep", "stop");
+        songListAdapter.playlistSongs(playlist.getSongList());
     }
 
 //    public void onViewFocused(ArrayList<Playlist> allPlaylists) {

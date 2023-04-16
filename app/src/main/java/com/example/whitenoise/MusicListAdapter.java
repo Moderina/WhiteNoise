@@ -43,22 +43,18 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     Intent notificationIntent;
     ExoPlayer player;
     Animation animation;
-//    Music_PlayerActivity musicPlayer;
-    ConstraintLayout playerView, miniplayerView;
     PlayerViewManager playerViewManager;
     int selectedItem = RecyclerView.NO_POSITION;
 
-    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, Context context, ExoPlayer player, ConstraintLayout playerView, ConstraintLayout miniplayerView, PlayerViewManager playerViewManager, Intent notificationIntent) {
+    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, Context context, ExoPlayer player, PlayerViewManager playerViewManager, Intent notificationIntent) {
         this.activity = activity;
         this.songList = songList;
         this.playlistsList = allPlaylists;
         this.context = context;
         this.player = player;
-        this.playerView = playerView;
-        this.miniplayerView = miniplayerView;
         this.playerViewManager = playerViewManager;
         this.notificationIntent = notificationIntent;
-        animation = AnimationUtils.loadAnimation(context.getApplicationContext(), R.anim.fade_in);
+        animation = AnimationUtils.loadAnimation(context, R.anim.fade_in);
     }
 
     @Override
@@ -122,11 +118,10 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.itemView.setOnClickListener(view -> {
             Log.wtf("path to self dest", songData.getPath());
             if (!player.isPlaying()) {
-                miniplayerView.setVisibility(View.VISIBLE);
-                activity.startService(notificationIntent);
                 player.setMediaItems(getMediaItems(), position, 0);
                 player.prepare();
                 player.play();
+                activity.startService(notificationIntent);
                 checkToKeepAppAlive();
             }
             else {
@@ -135,12 +130,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 player.prepare();
                 player.play();
             }
-//            playerViewManager.loadSongData(songData);
-
-
-
-            Toast.makeText(activity, songData.getPath(), Toast.LENGTH_SHORT).show();
-
         });
 
         holder.name_change.setOnClickListener(view -> {
@@ -151,7 +140,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
 
     private void checkToKeepAppAlive() {
         final Handler handler = new Handler(Looper.getMainLooper());
-        Log.wtf("loser", "loser");
         Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
@@ -224,9 +212,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 playlist.addSong(songData.getPath());
                 dialog.dismiss();
                 playlistsList.add(playlist);
-                for (Playlist pl : playlistsList) {
-                    Log.wtf("dammit", pl.getName());
-                }
             }
         });
     }
@@ -264,7 +249,20 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 .build();
     }
 
+    public void playlistSongs(ArrayList<String> songs) {
+        ArrayList<Song> temp = new ArrayList<>();
+        for (String uri : songs) {
+            Log.wtf("warning", uri);
+            for (Song song : songList)  {
+                Log.wtf(song.getTitle(), song.getPath());
+                if (song.getPath() == uri) temp.add(song);
+            }
+        }
+        songList = temp;
+        Log.wtf("tohgut", songList.get(0).getTitle());
+        notifyDataSetChanged();
 
+    }
 
 
     public void filterSongs(ArrayList<Song> filteredList) {

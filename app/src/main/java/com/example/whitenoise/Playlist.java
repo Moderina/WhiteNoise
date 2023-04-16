@@ -24,5 +24,7 @@ public class Playlist implements Serializable {
         songs.remove(song);
     }
 
+    public ArrayList<String> getSongList() {return songs;}
+
     public String getName() {return name;}
 }

@@ -204,20 +204,18 @@ public class PlayerViewManager extends ConstraintLayout {
 
 
     public void loadSongData(MediaItem mediaItem) {
+        miniPlayerView.setVisibility(VISIBLE);
         songTitle.setText(mediaItem.mediaMetadata.title);
         miniSongTitle.setText(mediaItem.mediaMetadata.title);
         miniArtist.setText(mediaItem.mediaMetadata.artist);
-        loadImage();
 
         progressBar.setProgress(0);
 
         playPause.setImageResource(R.drawable.pause_icon);
         miniPlayPauseBtn.setImageResource(R.drawable.pause_icon);
-//        currentTime.setText(convertMMSS(exoPlayer.getCurrentPosition()));
-//        durationTime.setText(song.getDuration());
         assert mediaItem.localConfiguration != null;
         seekbar.setSampleFrom(String.valueOf(mediaItem.localConfiguration.uri));
-//        seekbar.setMaxProgress(exoPlayer.getDuration());
+        loadImage();
     }
 
     public void loadImage() {

@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     TextView noMusicTextView;
 
     //main layouts
-    ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView, playlistView;
+    ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView, playlistView, playlistRecyclerLayout;
 
 
     //music View variables
@@ -149,10 +149,15 @@ public class MainActivity extends AppCompatActivity {
 
         //wrappers
         recyclerViewLayout = findViewById(R.id.recycler_layout);
+        playlistRecyclerLayout = findViewById(R.id.playlist_recycler_layout);
         playlistView = findViewById(R.id.playlist_view);
         playerView = findViewById(R.id.player_view);
         appBarView = findViewById(R.id.appbar);
         miniPlayerView = findViewById(R.id.mini_player);
+
+        playlistRecyclerLayout.setVisibility(View.GONE);
+        playlistView.setVisibility(View.GONE);
+
 
 
         player = new ExoPlayer.Builder(this).build();
@@ -286,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         miniPlayerView.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         Log.wtf("up", String.valueOf(playlistRecyclerView));
-        playlistRecyclerView.setVisibility(View.GONE);
+        playlistRecyclerLayout.setVisibility(View.GONE);
         playlistSongListRecyclerView.setVisibility(View.GONE);
     }
 
@@ -295,14 +300,8 @@ public class MainActivity extends AppCompatActivity {
         playerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
-        playlistRecyclerView.setVisibility(View.VISIBLE);
+        playlistRecyclerLayout.setVisibility(View.VISIBLE);
         playlistSongListRecyclerView.setVisibility(View.GONE);
-
-
-        if (playlistAdapter == null) {
-
-
-        }
 
 //        playlistAdapter.onViewFocused(allPlaylists);
 
@@ -390,12 +389,12 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, playerView, miniPlayerView, view_manager, notificationIntent);
+        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, view_manager, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
         playlistSongListRecyclerView.setAdapter(songListAdapter);
 
         playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistSongListRecyclerView);
+        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, songListAdapter);
         playlistRecyclerView.setAdapter(playlistAdapter);
 
     }
