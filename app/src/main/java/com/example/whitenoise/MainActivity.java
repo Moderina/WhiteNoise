@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView, playlistRecyclerView, playlistSongListRecyclerView;
     MusicListAdapter songListAdapter;
     PlaylistAdapter playlistAdapter;
+    PlaylistSongListAdapter playlistSongListAdapter;
     SearchView searchView;
     ImageView barLeftBtn, barRightBtn;
     ArrayList<Song> allSongs = new ArrayList<>();
@@ -387,15 +388,17 @@ public class MainActivity extends AppCompatActivity {
         allSongs.addAll(songs);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, view_manager, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
-        playlistSongListRecyclerView.setAdapter(songListAdapter);
+
+        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        playlistSongListAdapter = new PlaylistSongListAdapter(this, player, view_manager, notificationIntent);
 
         playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, songListAdapter);
+        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, playlistSongListAdapter);
         playlistRecyclerView.setAdapter(playlistAdapter);
+
+        playlistSongListRecyclerView.setAdapter(playlistSongListAdapter);
 
     }
 

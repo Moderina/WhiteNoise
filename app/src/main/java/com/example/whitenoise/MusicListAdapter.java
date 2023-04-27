@@ -1,6 +1,7 @@
 package com.example.whitenoise;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -87,7 +88,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Song songData = songList.get(position);
-        int color = createColor(songData);
+        int color = createColor(songData.getTitle());
         holder.titleTextView.setText(songData.getTitle());
         Shader textshader = new LinearGradient(0, 0, holder.titleTextView.getTextSize(), 0,
                 new int[]{color, Color.WHITE},
@@ -121,7 +122,8 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 player.setMediaItems(getMediaItems(), position, 0);
                 player.prepare();
                 player.play();
-                activity.startService(notificationIntent);
+                if (!isMyServiceRunning(Notification.class))
+                    activity.startService(notificationIntent);
                 checkToKeepAppAlive();
             }
             else {
@@ -136,6 +138,16 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             ChangeSongNameWindow(holder, songData);
         });
         holder.playlistAdd.setOnClickListener(view -> {AddSongToPlaylist(holder, songData);});
+    }
+
+    public boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void checkToKeepAppAlive() {
@@ -208,22 +220,23 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             @Override
             public void onClick(View view) {
                 String title = new_name.getText().toString();
-                Playlist playlist = new Playlist(title);
-                playlist.addSong(songData.getPath());
+                int color = createColor(title);
+                Playlist playlist = new Playlist(title, color);
+                playlist.addSong(songData);
                 dialog.dismiss();
                 playlistsList.add(playlist);
             }
         });
     }
 
-    private int createColor(Song songData) {
-        if (songData.getTitle().length() < 3) {
+    private int createColor(String name) {
+        if (name.length() <= 3) {
             int color = 0xFFFF0000;
             return color;
         }
-        int first = (songData.getTitle().charAt(3)-65)*4;
-        int sec = (songData.getTitle().charAt(1)-65)*4;
-        int third = (songData.getTitle().charAt(2)-65)*4;
+        int first = (name.charAt(3)-65)*4;
+        int sec = (name.charAt(1)-65)*4;
+        int third = (name.charAt(2)-65)*4;
         int color = (255 & 0xff) << 24 | (first & 0xff) << 16 | (third & 0xff) << 8 | (sec & 0xff);
         return color;
     }

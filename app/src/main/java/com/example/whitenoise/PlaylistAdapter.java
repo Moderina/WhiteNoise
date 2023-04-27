@@ -18,13 +18,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     Context context;
     ArrayList<Playlist> playlistList;
     ConstraintLayout playlistView;
-    MusicListAdapter songListAdapter;
+    PlaylistSongListAdapter playlistSongListAdapter;
 
-    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, ConstraintLayout playlistView, MusicListAdapter songListAdapter) {
+    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, ConstraintLayout playlistView, PlaylistSongListAdapter playlistSongListAdapter) {
         this.context = context;
         this.playlistList = allPlaylists;
         this.playlistView = playlistView;
-        this.songListAdapter = songListAdapter;
+        this.playlistSongListAdapter = playlistSongListAdapter;
     }
 
     @NonNull
@@ -55,9 +55,10 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
     }
 
     private void createPlaylistSongList(Playlist playlist) {
+
         playlistView.setVisibility(View.VISIBLE);
-        Log.wtf("keep", "stop");
-        songListAdapter.playlistSongs(playlist.getSongList());
+        Log.wtf("keep", String.valueOf(playlistSongListAdapter));
+        playlistSongListAdapter.playlistData(playlist.getSongList(), playlist.color);
     }
 
 //    public void onViewFocused(ArrayList<Playlist> allPlaylists) {
