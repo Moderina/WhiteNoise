@@ -5,7 +5,7 @@ import android.net.Uri;
 import java.io.Serializable;
 
 public class Song implements Serializable {
-    String path;
+    String path, imageURL;
     String title, artist;
     String full_name;
     int duration;
@@ -18,6 +18,7 @@ public class Song implements Serializable {
         this.artist = artist;
         this.duration = duration;
         this.size = size;
+        imageURL="";
     }
 
     public String getPath() {
@@ -41,4 +42,8 @@ public class Song implements Serializable {
     public int getSize() {
         return size;
     }
+
+    public String getImageURL() {return imageURL; }
+
+    public void setImageURL(String url) { imageURL = url; }
 }

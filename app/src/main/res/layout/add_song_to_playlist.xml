@@ -15,14 +15,34 @@
         android:text="Choose playlist"
         android:textSize="20sp"/>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/original_title"
+        app:layout_constraintBottom_toTopOf="@id/new_playlist_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="12dp"
+        android:hint="Select Playlist"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
+        app:boxCornerRadiusBottomEnd="@dimen/m">
+        <AutoCompleteTextView
+            android:id="@+id/playlists_to_choose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none">
+        </AutoCompleteTextView>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
     <EditText
         android:id="@+id/new_playlist_name"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/original_title"
-        android:hint="Enter new playlist name here" />
+        app:layout_constraintBottom_toTopOf="@id/save_button"
+        android:hint="Or enter new playlist name here" />
 
     <Button
         android:id="@+id/save_button"

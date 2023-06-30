@@ -16,13 +16,12 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginVertical="@dimen/s"
         android:layout_marginHorizontal="6dp"
-        app:cardCornerRadius="@dimen/xs"
-        app:cardElevation="8dp">
+        app:cardBackgroundColor="#00000000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/song_background">
+            android:background="@drawable/songelement">
 
             <ImageView
                 android:id="@+id/side_line"
@@ -30,8 +29,8 @@
                 android:layout_height="60dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/neon_bar"
-                android:backgroundTint="#00FF04"
+                android:background="@drawable/song_color"
+                android:backgroundTint="#a3ef00"
                 android:contentDescription="@string/app_name">
             </ImageView>
 
@@ -40,8 +39,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="FUCK YOU"
-                android:textColor="@color/white"
-                android:textSize="@dimen/m"
+                android:textColor="#f255cc"
+                android:textSize="20dp"
+                android:fontFamily="@font/retro"
                 android:maxLines="1"
                 android:scrollbars="horizontal"
                 android:ellipsize="end"
@@ -49,8 +49,7 @@
                 app:layout_constraintEnd_toStartOf="@id/name_change"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textAlignment="textStart"
-                android:paddingLeft="4dp"
-                android:paddingVertical="8dp"
+                android:paddingVertical="9dp"
 >
 
 
@@ -61,8 +60,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="DEATH"
-                android:textColor="@color/white"
+                android:textColor="#140a0d"
                 android:textSize="@dimen/sm"
+                android:fontFamily="@font/retro"
                 android:maxLines="1"
                 app:layout_constraintStart_toEndOf="@id/side_line"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -78,8 +78,9 @@
                 app:layout_constraintStart_toEndOf="@id/name_change"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginRight="10dp"
+                android:layout_marginRight="35dp"
                 android:src="@drawable/playlist_add"
+                app:tint="#a3ef00"
                 android:scaleY="0.8"
                 android:scaleX="0.8"
                 android:visibility="gone">
@@ -93,9 +94,10 @@
                 app:layout_constraintStart_toEndOf="@id/title"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginRight="5dp"
+                android:layout_marginRight="0dp"
 
                 android:src="@drawable/name_change"
+                app:tint="#a3ef00"
                 android:visibility="gone">
             </ImageView>
 

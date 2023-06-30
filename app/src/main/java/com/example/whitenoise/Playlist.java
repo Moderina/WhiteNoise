@@ -21,6 +21,8 @@ public class Playlist implements Serializable {
         this.songs.addAll(songs);
     }
 
+    public String getName() {return name;}
+
     public void addSong(Song song) {
         Log.wtf("add", song.getTitle());
         songs.add(song);
@@ -35,6 +37,4 @@ public class Playlist implements Serializable {
     }
 
     public ArrayList<Song> getSongList() {return songs;}
-
-    public String getName() {return name;}
 }

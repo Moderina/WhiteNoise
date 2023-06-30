@@ -17,13 +17,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
 
     Context context;
     ArrayList<Playlist> playlistList;
-    ConstraintLayout playlistView;
     PlaylistSongListAdapter playlistSongListAdapter;
+    PlaylistViewManager playlistViewManager;
 
-    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, ConstraintLayout playlistView, PlaylistSongListAdapter playlistSongListAdapter) {
+    public PlaylistAdapter(Context context, ArrayList<Playlist> allPlaylists, PlaylistViewManager playlistViewManager, PlaylistSongListAdapter playlistSongListAdapter) {
         this.context = context;
         this.playlistList = allPlaylists;
-        this.playlistView = playlistView;
+        this.playlistViewManager = playlistViewManager;
         this.playlistSongListAdapter = playlistSongListAdapter;
     }
 
@@ -56,18 +56,11 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.ViewHo
 
     private void createPlaylistSongList(Playlist playlist) {
 
-        playlistView.setVisibility(View.VISIBLE);
+        playlistViewManager.playlistView.setVisibility(View.VISIBLE);
         Log.wtf("keep", String.valueOf(playlistSongListAdapter));
         playlistSongListAdapter.playlistData(playlist.getSongList(), playlist.color);
+        playlistViewManager.playlistName.setText(playlist.name);
     }
-
-//    public void onViewFocused(ArrayList<Playlist> allPlaylists) {
-//        this.playlistList = allPlaylists;
-//        for (Playlist pl : playlistList) {
-//            Log.wtf("wish i hated you", pl.getName());
-//        }
-//        notifyDataSetChanged();
-//    }
 
     @Override
     public int getItemCount() {

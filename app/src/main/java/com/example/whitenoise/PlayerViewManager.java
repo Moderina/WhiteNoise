@@ -45,6 +45,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -58,6 +59,8 @@ public class PlayerViewManager extends ConstraintLayout {
     Context context;
     ExoPlayer exoPlayer;
     ConstraintLayout playerView, miniPlayerView;
+    ArrayList<Song> songList;
+    Song currentsong;
 
     TextView playerCloseBtn;
     TextView songTitle;
@@ -68,13 +71,15 @@ public class PlayerViewManager extends ConstraintLayout {
     ProgressBar progressBar;
     TextView currentTime, durationTime;
     int repeatMode = 0;
-    String url;
+    String url = "";
+    int imagenumber = 0;
     OkHttpClient httpclient;
     boolean Btstatus;
 
-    public PlayerViewManager(@NonNull Context context, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
+    public PlayerViewManager(@NonNull Context context, ArrayList<Song> songs, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
         super(context);
         this.context = context;
+        this.songList = songs;
         this.exoPlayer = exoPlayer;
         this.playerView = playerView;
         this.miniPlayerView = miniPlayerView;
@@ -109,6 +114,7 @@ public class PlayerViewManager extends ConstraintLayout {
                 Player.Listener.super.onMediaItemTransition(mediaItem, reason);
                 loadSongData(mediaItem);
                 updatePlayerProgress();
+                imagenumber=0;
             }
 
             @Override
@@ -129,6 +135,7 @@ public class PlayerViewManager extends ConstraintLayout {
     private void playerControls() {
         playerCloseBtn.setOnClickListener(view -> exitPlayerView());
         miniPlayerView.setOnClickListener(view -> openPlayerView());
+        musicIcon.setOnClickListener(view -> loadImage(""));
         seekbar.setOnProgressChanged((waveformSeekBar, progress, user) -> {
             if (user) {
                 exoPlayer.seekTo((long) progress * 1000);
@@ -149,20 +156,14 @@ public class PlayerViewManager extends ConstraintLayout {
                 exoPlayer.seekTo(exoPlayer.getPreviousMediaItemIndex(), 0);
                 exoPlayer.prepare();
                 exoPlayer.play();
-            } catch (Exception e) {
-            }
-            ;
-
+            } catch (Exception ignored) {}
         });
         nextBtn.setOnClickListener(view -> {
             try {
                 exoPlayer.seekTo(exoPlayer.getNextMediaItemIndex(), 0);
                 exoPlayer.prepare();
                 exoPlayer.play();
-            } catch (Exception e) {
-            }
-            ;
-
+            } catch (Exception ignored) {}
         });
 
         miniPlayPauseBtn.setOnClickListener(view -> {
@@ -174,6 +175,14 @@ public class PlayerViewManager extends ConstraintLayout {
                 exoPlayer.play();
                 miniPlayPauseBtn.setImageResource(R.drawable.pause_icon);
                 playPause.setImageResource(R.drawable.pause_icon);
+            }
+        });
+
+        musicIcon.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                ((MainActivity) context).SaveSongImage(url);
+                return true;
             }
         });
     }
@@ -204,7 +213,8 @@ public class PlayerViewManager extends ConstraintLayout {
 
 
     public void loadSongData(MediaItem mediaItem) {
-        miniPlayerView.setVisibility(VISIBLE);
+        if(playerView.getVisibility() == GONE)
+            miniPlayerView.setVisibility(VISIBLE);
         songTitle.setText(mediaItem.mediaMetadata.title);
         miniSongTitle.setText(mediaItem.mediaMetadata.title);
         miniArtist.setText(mediaItem.mediaMetadata.artist);
@@ -215,11 +225,29 @@ public class PlayerViewManager extends ConstraintLayout {
         miniPlayPauseBtn.setImageResource(R.drawable.pause_icon);
         assert mediaItem.localConfiguration != null;
         seekbar.setSampleFrom(String.valueOf(mediaItem.localConfiguration.uri));
-        loadImage();
+        Log.wtf("he pretends",(String) mediaItem.mediaMetadata.albumArtist);
+        loadImage((String) mediaItem.mediaMetadata.albumArtist);
     }
 
-    public void loadImage() {
-//        url = "https://www.google.com/search?q="+ songTitle.getText() + " " + miniArtist.getText() + " album" +"&tbm=isch";
+    public void loadImage(String address) {
+        if (address != "") {
+            url = address;
+            Log.wtf("spirit", url);
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Glide.with(context)
+                            .load(url)
+                            .apply(RequestOptions.bitmapTransform(new RoundedCorners(30)))
+                            .into(musicIcon);
+                    Glide.with(context)
+                            .load(url)
+                            .apply(RequestOptions.bitmapTransform(new RoundedCorners(20)))
+                            .into(miniMusicIcon);
+                }
+            });
+            return;
+        }
         String readyQuery = songTitle.getText() + "+" + miniArtist.getText() + "";
         readyQuery = readyQuery.replaceAll(" ", "+");
         url = "https://www.googleapis.com/customsearch/v1?key=AIzaSyCwtzt1pkN224u3iVuPD3_Tnkt9m1qxzbo&cx=85ddd9c7a287347a8&q=" + readyQuery + "&searchType=image&imgType=photo";
@@ -246,7 +274,8 @@ public class PlayerViewManager extends ConstraintLayout {
                     try {
                         JSONObject json = new JSONObject(myResponse);
                         JSONArray items = json.getJSONArray("items");
-                        String imageUrl = items.getJSONObject(0).getString("link");
+                        String imageUrl = items.getJSONObject(imagenumber).getString("link");
+                        url = imageUrl;
                         ((Activity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -260,13 +289,20 @@ public class PlayerViewManager extends ConstraintLayout {
                                         .into(miniMusicIcon);
                             }
                         });
+                        imagenumber++;
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        imagenumber = 0;
                     }
 
                 }
             }
         });
+    }
+
+    private void saveImage() {
+        MainActivity ma = ((MainActivity) context);
+        ma.SaveSongImage(url);
     }
 
     private void exitPlayerView() {

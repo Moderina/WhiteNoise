@@ -9,6 +9,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,12 +32,14 @@ import android.util.Log;
 import android.view.View;
 import androidx.appcompat.widget.SearchView;
 
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.masoudss.lib.WaveformSeekBar;
 import com.squareup.picasso.Picasso;
 
@@ -72,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Playlist> pserialized = new ArrayList<>();
     TextView noMusicTextView;
 
+    //Fragments
+    SongListFragment songListFragment;
+    PlaylistListFragment playlistListFragment;
+
     //main layouts
     ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView, playlistView, playlistRecyclerLayout;
 
@@ -83,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     TextView miniSongTitle, miniArtist;
     ImageView miniNextBtn, miniPlayPauseBtn, miniMusicIcon;
     ConstraintLayout  homeControlWrapper, headWrapper, seekbarWrapper;
-//    SeekBar seekbar;
     WaveformSeekBar seekbar;
     ProgressBar progressBar;
     TextView currentTime, durationTime;
@@ -121,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ColorUtils.setAlphaComponent(485937, 199));
         getWindow().setNavigationBarColor(ColorUtils.setAlphaComponent(37489, 199));
 
-        recyclerView = findViewById(R.id.recycler_view);
-        playlistRecyclerView = findViewById(R.id.playlist_recycler_view);
-        playlistSongListRecyclerView = findViewById(R.id.playlist_songlist_recyclerview);
-        noMusicTextView = findViewById(R.id.no_songs);
+//        recyclerView = findViewById(R.id.recycler_view);
+//        playlistRecyclerView = findViewById(R.id.playlist_recycler_view);
+//        playlistSongListRecyclerView = findViewById(R.id.playlist_songlist_recyclerview);
+
         searchView = findViewById(R.id.search_view);
         barLeftBtn = findViewById(R.id.knuck);
         barRightBtn = findViewById(R.id.knuck2);
@@ -149,21 +156,21 @@ public class MainActivity extends AppCompatActivity {
         miniMusicIcon = findViewById(R.id.mini_song_icon);
 
         //wrappers
-        recyclerViewLayout = findViewById(R.id.recycler_layout);
-        playlistRecyclerLayout = findViewById(R.id.playlist_recycler_layout);
-        playlistView = findViewById(R.id.playlist_view);
+//        recyclerViewLayout = findViewById(R.id.recycler_layout);
+//        playlistRecyclerLayout = findViewById(R.id.playlist_recycler_layout);
+//        playlistView = findViewById(R.id.playlist_view);
         playerView = findViewById(R.id.player_view);
         appBarView = findViewById(R.id.appbar);
         miniPlayerView = findViewById(R.id.mini_player);
 
-        playlistRecyclerLayout.setVisibility(View.GONE);
-        playlistView.setVisibility(View.GONE);
+//        playlistRecyclerLayout.setVisibility(View.GONE);
+//        playlistView.setVisibility(View.GONE);
 
 
 
         player = new ExoPlayer.Builder(this).build();
 
-        view_manager = new PlayerViewManager(this, player, playerView, miniPlayerView, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
+        view_manager = new PlayerViewManager(this, allSongs, player, playerView, miniPlayerView, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
         notificationIntent = new Intent(this, Notification.class);
 
 
@@ -171,14 +178,15 @@ public class MainActivity extends AppCompatActivity {
         searchViewChange(searchView);
         appControls();
         playerControls();
-        loadSongsView();
+//        loadSongsView();
     }
 
     @Override
-    protected void onDestroy() {
-        allPlaylists = songListAdapter.getUpdatedPlaylists();
+    protected void onStop() {
+        super.onStop();
+        Log.wtf("closing", "closing");
+//        allPlaylists = songListAdapter.getUpdatedPlaylists();
         serializeSongData();
-        super.onDestroy();
         if (player.isPlaying()) player.stop();
         player.release();
         stopService(notificationIntent);
@@ -187,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
     private void serializeSongData() {
         try {
             FileOutputStream fos = openFileOutput("songData.ser", Context.MODE_PRIVATE);
+            Log.wtf("file", String.valueOf(fos));
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(allSongs);
             oos.close();
@@ -200,7 +209,9 @@ public class MainActivity extends AppCompatActivity {
             oos.writeObject(allPlaylists);
             oos.close();
             fos.close();
+            Log.wtf("file", "no sense");
         } catch (Exception e) {
+            Log.wtf("dupa", "no i dupa");
             e.printStackTrace();
         }
     }
@@ -290,19 +301,34 @@ public class MainActivity extends AppCompatActivity {
     private void loadSongsView() {
         playerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
+//        recyclerView.setVisibility(View.VISIBLE);
         Log.wtf("up", String.valueOf(playlistRecyclerView));
-        playlistRecyclerLayout.setVisibility(View.GONE);
-        playlistSongListRecyclerView.setVisibility(View.GONE);
+
+        if (songListFragment == null) {
+            songListFragment = new SongListFragment();
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.FragmentLayout, songListFragment);
+        fragmentTransaction.commit();
+//        playlistRecyclerLayout.setVisibility(View.GONE);
+//        playlistSongListRecyclerView.setVisibility(View.GONE);
     }
 
 
     private void loadPlaylistView() {
         playerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        playlistRecyclerLayout.setVisibility(View.VISIBLE);
-        playlistSongListRecyclerView.setVisibility(View.GONE);
+        if (playlistListFragment == null) {
+            playlistListFragment = new PlaylistListFragment();
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.FragmentLayout, playlistListFragment);
+        fragmentTransaction.commit();
+//        recyclerView.setVisibility(View.GONE);
+//        playlistRecyclerLayout.setVisibility(View.VISIBLE);
+//        playlistSongListRecyclerView.setVisibility(View.GONE);
 
 //        playlistAdapter.onViewFocused(allPlaylists);
 
@@ -370,6 +396,7 @@ public class MainActivity extends AppCompatActivity {
                     if (Objects.equals(ssong.getPath(), song.getPath())) {
                         song.title = ssong.getTitle();
                         song.artist = ssong.getArtist();
+                        song.setImageURL(ssong.getImageURL());
                     }
                 }
             }
@@ -380,25 +407,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSongs(ArrayList<Song> songs) {
         if (songs.size() == 0) {
-            noMusicTextView.setVisibility(View.VISIBLE);
+//            noMusicTextView.setVisibility(View.VISIBLE);
             return;
         }
-        noMusicTextView.setVisibility(View.INVISIBLE);
+//        noMusicTextView.setVisibility(View.INVISIBLE);
         allSongs.clear();
         allSongs.addAll(songs);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, getApplicationContext(), player, view_manager, notificationIntent);
-        recyclerView.setAdapter(songListAdapter);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, player, notificationIntent);
+//        recyclerView.setAdapter(songListAdapter);
 
-        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        playlistSongListAdapter = new PlaylistSongListAdapter(this, player, view_manager, notificationIntent);
+        if (songListFragment == null) {
+            songListFragment = new SongListFragment();
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.FragmentLayout, songListFragment);
+        fragmentTransaction.commit();
 
-        playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, playlistSongListAdapter);
-        playlistRecyclerView.setAdapter(playlistAdapter);
-
-        playlistSongListRecyclerView.setAdapter(playlistSongListAdapter);
+//        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        playlistSongListAdapter = new PlaylistSongListAdapter(this, player, view_manager, notificationIntent);
+//
+//        playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+//        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, playlistSongListAdapter);
+//        playlistRecyclerView.setAdapter(playlistAdapter);
+//
+//        playlistSongListRecyclerView.setAdapter(playlistSongListAdapter);
 
     }
 
@@ -414,31 +449,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) Log.wtf("empty vessel", newText.toLowerCase());
-                filterSongs(newText.toLowerCase());
+                songListFragment.filterSongs(newText.toLowerCase());
                 return true;
             }
         });
     }
 
-    public void filterSongs(String query) {
 
-        ArrayList<Song> filteredList = new ArrayList<>();
-
-        if (allSongs.size() > 0) {
-            for (Song song : allSongs) {
-                if (song.getTitle().toLowerCase().contains(query) || song.getArtist().toLowerCase().contains(query)) {
-                    filteredList.add(song);
-                }
-            }
-            if (filteredList.size() == 0) noMusicTextView.setVisibility(View.VISIBLE);
-            else noMusicTextView.setVisibility(View.INVISIBLE);
-            if (songListAdapter != null) {
-                songListAdapter.filterSongs(filteredList);
-            }
-
-
-        }
-    }
 
     public String[] nameNartist (String title, String artist) {
 
@@ -460,6 +477,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return new String[]{title, artist};
+    }
+
+    public void SaveSongImage(String url){
+        MediaItem current = player.getCurrentMediaItem();
+        Log.wtf("fall away", (String) current.mediaMetadata.composer);
+        for (Song song:allSongs) {
+            if (song.getPath().equals(current.mediaMetadata.composer)) {
+                song.setImageURL(url);
+                Log.wtf("ms believer", song.imageURL);
+                Toast.makeText(MainActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 

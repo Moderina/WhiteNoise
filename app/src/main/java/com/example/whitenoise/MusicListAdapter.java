@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -17,6 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,33 +38,32 @@ import com.google.android.exoplayer2.MediaMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.ViewHolder>{
 
     MainActivity activity;
     ArrayList<Song> songList;
     ArrayList<Playlist> playlistsList;
-    Context context;
     Intent notificationIntent;
     ExoPlayer player;
     Animation animation;
     PlayerViewManager playerViewManager;
     int selectedItem = RecyclerView.NO_POSITION;
 
-    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, Context context, ExoPlayer player, PlayerViewManager playerViewManager, Intent notificationIntent) {
+    public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, ExoPlayer player, /*PlayerViewManager playerViewManager,*/ Intent notificationIntent) {
         this.activity = activity;
         this.songList = songList;
         this.playlistsList = allPlaylists;
-        this.context = context;
         this.player = player;
-        this.playerViewManager = playerViewManager;
+//        this.playerViewManager = playerViewManager;
         this.notificationIntent = notificationIntent;
-        animation = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+        animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.song_element, parent, false);
+        View view = LayoutInflater.from(activity).inflate(R.layout.song_element, parent, false);
         view.findViewById(R.id.song_card).setAnimation(animation);
         return new ViewHolder(view);
     }
@@ -91,7 +94,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         int color = createColor(songData.getTitle());
         holder.titleTextView.setText(songData.getTitle());
         Shader textshader = new LinearGradient(0, 0, holder.titleTextView.getTextSize(), 0,
-                new int[]{color, Color.WHITE},
+                new int[]{color, 0xfff255cc},
                 new float[]{0, 1},
                 Shader.TileMode.CLAMP);
         holder.titleTextView.getPaint().setShader(textshader);
@@ -106,7 +109,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-//                Toast.makeText(context, "Deep end", Toast.LENGTH_SHORT).show();
                 holder.name_change.setVisibility(View.VISIBLE);
                 holder.playlistAdd.setVisibility(View.VISIBLE);
                 int prev = selectedItem;
@@ -205,6 +207,17 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         View view = LayoutInflater.from(activity).inflate(R.layout.add_song_to_playlist, null);
         final EditText new_name = view.findViewById(R.id.new_playlist_name);
         Button saveButton = view.findViewById(R.id.save_button);
+        AutoCompleteTextView autoCompleteTextView = view.findViewById(R.id.playlists_to_choose);
+
+        ArrayAdapter<String> adapterItems = new ArrayAdapter<String>(activity, R.layout.addtoplaylist_element, playlistsList.stream().map(Playlist::getName).collect(Collectors.toList()));
+        autoCompleteTextView.setAdapter(adapterItems);
+        autoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = adapterView.getItemAtPosition(i).toString();
+            }
+        });
 
         builder.setView(view);
         final AlertDialog dialog = builder.create();
@@ -220,11 +233,23 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             @Override
             public void onClick(View view) {
                 String title = new_name.getText().toString();
-                int color = createColor(title);
-                Playlist playlist = new Playlist(title, color);
-                playlist.addSong(songData);
+                Log.wtf("istniejem", autoCompleteTextView.getText().toString());
+                if(!autoCompleteTextView.getText().toString().isEmpty()) {
+                    for (Playlist playlist: playlistsList) {
+                        if (playlist.getName().equals(autoCompleteTextView.getText().toString())) {
+                            playlist.addSong(songData);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    int color = createColor(title);
+                    Playlist playlist = new Playlist(title, color);
+                    playlist.addSong(songData);
+                    playlistsList.add(playlist);
+                }
                 dialog.dismiss();
-                playlistsList.add(playlist);
+                activity.allPlaylists = playlistsList;
             }
         });
     }
@@ -245,11 +270,11 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         List<MediaItem> mediaItems = new ArrayList<>();
 
         for(Song song : songList) {
+            Log.wtf("words as tools", song.getImageURL());
             MediaItem mediaItem = new MediaItem.Builder()
                     .setUri(song.getPath())
                     .setMediaMetadata(getMetadata(song))
                     .build();
-
             mediaItems.add(mediaItem);
         }
         return mediaItems;
@@ -259,6 +284,8 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         return new MediaMetadata.Builder()
                 .setTitle(song.getTitle())
                 .setArtist(song.getArtist())
+                .setAlbumArtist(song.getImageURL()) //image URL
+                .setComposer(song.getPath())
                 .build();
     }
 

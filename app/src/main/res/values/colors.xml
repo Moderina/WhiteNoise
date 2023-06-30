@@ -6,7 +6,26 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+<!--    <color name="white">#FFFFFFFF</color>-->
     <color name="fakewhite">#C3C3C3</color>
     <color name="green">#11FD00</color>
+<!--    <color name="primary">#7c38a3</color>
+    <color name="primary2">#a741e1</color>
+    <color name="background">#3c2b46</color>
+    <color name="accent">#d7fff0</color>
+    <color name="text">#fdab1c</color>-->
+<!--    <color name="primary">#0E273C</color>
+    <color name="primary2">#4A306D</color>
+    <color name="primary3">#A167A5</color>-->
+ <!--   <color name="background">#2D7C6D</color>
+    <color name="background1">#166150</color>
+    <color name="border">#103735</color>
+    <color name="primary">#D8AA23</color>
+    <color name="primary2">#01D592</color>-->
+    <color name="background">#2A2832</color>
+    <color name="background1">#49444E</color>
+    <color name="background2">#230D37</color>
+    <color name="primary">#7761FF</color>
+    <color name="yellow">#D6CC35</color>
+    <color name="white">#DCD1E8</color>
 </resources>
