@@ -39,6 +39,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Fragments
+    MainScreen mainScreenFragment;
     SongListFragment songListFragment;
     PlaylistListFragment playlistListFragment;
 
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
     //music View variables
     TextView playerCloseBtn;
     TextView songTitle;
+    ImageView background1, background2;
     ImageView prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon;
     TextView miniSongTitle, miniArtist;
     ImageView miniNextBtn, miniPlayPauseBtn, miniMusicIcon;
@@ -135,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
         barRightBtn = findViewById(R.id.knuck2);
 
         //big player
+        background1 = findViewById(R.id.background1);
+        background2 = findViewById(R.id.background2);
         playerCloseBtn = findViewById(R.id.backBtn);
         songTitle = findViewById(R.id.song_Title);
         prevBtn = findViewById(R.id.pre);
@@ -161,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 
         player = new ExoPlayer.Builder(this).build();
 
-        view_manager = new PlayerViewManager(this, player, playerView, miniPlayerView, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
+        view_manager = new PlayerViewManager(this, player, playerView, miniPlayerView, background1, background2, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
         notificationIntent = new Intent(this, Notification.class);
 
 
@@ -247,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
+                loadSongsView();
                 playerView.setVisibility(View.GONE);
                 searchView.setQueryHint("How you feelin");
                 ImageView i1 = findViewById(R.id.knuck);
@@ -282,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void appControls() {
 
-        barLeftBtn.setOnClickListener(view -> {loadSongsView();});
+        barLeftBtn.setOnClickListener(view -> {loadMainView();});
         barRightBtn.setOnClickListener(view -> {loadPlaylistView();});
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -294,6 +300,19 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void loadMainView()
+    {
+        playerView.setVisibility(View.GONE);
+        miniPlayerView.setVisibility(View.VISIBLE);
+        if (mainScreenFragment == null) {
+            mainScreenFragment = new MainScreen();
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.FragmentLayout, mainScreenFragment);
+        fragmentTransaction.commit();
     }
 
     private void loadSongsView() {

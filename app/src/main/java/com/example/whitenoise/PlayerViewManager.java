@@ -1,5 +1,6 @@
 package com.example.whitenoise;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,6 +56,7 @@ public class PlayerViewManager extends ConstraintLayout {
 
     TextView playerCloseBtn;
     TextView songTitle;
+    ImageView background1, background2;
     ImageView prevBtn, nextBtn, playPause, repeatBtn, playlistBtn, musicIcon;
     TextView miniSongTitle, miniArtist;
     ImageView miniNextBtn, miniPlayPauseBtn, miniMusicIcon;
@@ -69,12 +72,14 @@ public class PlayerViewManager extends ConstraintLayout {
     final Handler handler = new Handler(Looper.getMainLooper());
 
 
-    public PlayerViewManager(@NonNull Context context, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
+    public PlayerViewManager(@NonNull Context context, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, ImageView background1, ImageView background2, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
         super(context);
         this.context = context;
         this.exoPlayer = exoPlayer;
         this.playerView = playerView;
         this.miniPlayerView = miniPlayerView;
+        this.background1 = background1;
+        this.background2 = background2;
         this.playerCloseBtn = playerCloseBtn;
         this.songTitle = songTitle;
         this.prevBtn = prevBtn;
@@ -97,6 +102,7 @@ public class PlayerViewManager extends ConstraintLayout {
         maximize = AnimationUtils.loadAnimation(context, R.anim.maximize);
         playerControls();
         playerEvents();
+        backgroundAnim();
         httpclient = new OkHttpClient();
     }
 
@@ -347,6 +353,25 @@ public class PlayerViewManager extends ConstraintLayout {
         };
         handler.postDelayed(runnable, 100);
 
+    }
+
+    private void backgroundAnim()
+    {
+        final ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(100000L);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float progress = (float) animation.getAnimatedValue();
+                final float height = background1.getHeight();
+                final float translationY = height * progress;
+                background1.setTranslationY(translationY);
+                background2.setTranslationY(translationY - height + 20);
+            }
+        });
+        animator.start();
     }
 
     @SuppressLint("MissingPermission")
