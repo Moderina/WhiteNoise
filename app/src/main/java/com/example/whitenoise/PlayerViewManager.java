@@ -1,24 +1,18 @@
 package com.example.whitenoise;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothHeadset;
-import android.content.ComponentName;
 import android.content.Context;
 
-import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.Message;
-import android.os.Parcelable;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,7 +21,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -35,17 +28,14 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.masoudss.lib.SeekBarOnProgressChanged;
+import com.google.gson.Gson;
 import com.masoudss.lib.WaveformSeekBar;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -59,8 +49,8 @@ public class PlayerViewManager extends ConstraintLayout {
     Context context;
     ExoPlayer exoPlayer;
     ConstraintLayout playerView, miniPlayerView;
-    ArrayList<Song> songList;
-    Song currentsong;
+
+    Animation minimize, maximize;
 
     TextView playerCloseBtn;
     TextView songTitle;
@@ -71,15 +61,17 @@ public class PlayerViewManager extends ConstraintLayout {
     ProgressBar progressBar;
     TextView currentTime, durationTime;
     int repeatMode = 0;
+    Song song;
     String url = "";
     int imagenumber = 0;
     OkHttpClient httpclient;
     boolean Btstatus;
+    final Handler handler = new Handler(Looper.getMainLooper());
 
-    public PlayerViewManager(@NonNull Context context, ArrayList<Song> songs, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
+
+    public PlayerViewManager(@NonNull Context context, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
         super(context);
         this.context = context;
-        this.songList = songs;
         this.exoPlayer = exoPlayer;
         this.playerView = playerView;
         this.miniPlayerView = miniPlayerView;
@@ -101,7 +93,8 @@ public class PlayerViewManager extends ConstraintLayout {
         this.currentTime = currentTime;
         this.durationTime = durationTime;
         Btstatus = false;
-
+        minimize = AnimationUtils.loadAnimation(context, R.anim.minimize);
+        maximize = AnimationUtils.loadAnimation(context, R.anim.maximize);
         playerControls();
         playerEvents();
         httpclient = new OkHttpClient();
@@ -114,6 +107,12 @@ public class PlayerViewManager extends ConstraintLayout {
                 Player.Listener.super.onMediaItemTransition(mediaItem, reason);
                 loadSongData(mediaItem);
                 updatePlayerProgress();
+//                seekbar.set
+//                seekbar.
+                if(reason == 2)
+                {
+                    Log.wtf("i dont", "belong here");
+                }
                 imagenumber=0;
             }
 
@@ -181,14 +180,15 @@ public class PlayerViewManager extends ConstraintLayout {
         musicIcon.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                ((MainActivity) context).SaveSongImage(url);
+//                ((MainActivity) context).SaveSongImage(url);
+                song.setImageURL(url);
+                Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
     }
 
     private void updatePlayerProgress() {
-        final Handler handler = new Handler(Looper.getMainLooper());
         Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
@@ -213,20 +213,33 @@ public class PlayerViewManager extends ConstraintLayout {
 
 
     public void loadSongData(MediaItem mediaItem) {
+        song = ((MainActivity) context).getSong();
+        if (song == null) return;
+        if(song.waveform == null)
+            Log.wtf("after", "no waveform");
+        else
+            Log.wtf("after", song.waveform.toString());
         if(playerView.getVisibility() == GONE)
             miniPlayerView.setVisibility(VISIBLE);
         songTitle.setText(mediaItem.mediaMetadata.title);
         miniSongTitle.setText(mediaItem.mediaMetadata.title);
         miniArtist.setText(mediaItem.mediaMetadata.artist);
+        updateText((String)mediaItem.mediaMetadata.title, (String)mediaItem.mediaMetadata.artist);
 
         progressBar.setProgress(0);
 
         playPause.setImageResource(R.drawable.pause_icon);
         miniPlayPauseBtn.setImageResource(R.drawable.pause_icon);
-        assert mediaItem.localConfiguration != null;
-        seekbar.setSampleFrom(String.valueOf(mediaItem.localConfiguration.uri));
-        Log.wtf("he pretends",(String) mediaItem.mediaMetadata.albumArtist);
-        loadImage((String) mediaItem.mediaMetadata.albumArtist);
+//        assert mediaItem.localConfiguration != null;
+        if(song.getWaveform() == null)
+        {
+            seekbar.setSampleFrom(String.valueOf(mediaItem.localConfiguration.uri));
+            song.setWaveform(seekbar.getSample());
+        }
+        else
+            seekbar.setSample(song.getWaveform());
+        Log.wtf("he pretends",song.getImageURL());
+        loadImage(song.getImageURL());
     }
 
     public void loadImage(String address) {
@@ -264,13 +277,6 @@ public class PlayerViewManager extends ConstraintLayout {
                 if (response.isSuccessful()) {
                     String myResponse = response.body().string();
 
-//                    myResponse = myResponse.substring(myResponse.indexOf("src=\"")+5);
-//                    if (myResponse.startsWith("/images")) {
-//                        myResponse = myResponse.substring(myResponse.indexOf("src=\"")+5);
-//                        myResponse = myResponse.substring(0, myResponse.indexOf("\""));
-
-//                    }
-//                    final String mresponse = myResponse;
                     try {
                         JSONObject json = new JSONObject(myResponse);
                         JSONArray items = json.getJSONArray("items");
@@ -300,19 +306,47 @@ public class PlayerViewManager extends ConstraintLayout {
         });
     }
 
-    private void saveImage() {
-        MainActivity ma = ((MainActivity) context);
-        ma.SaveSongImage(url);
-    }
-
     private void exitPlayerView() {
-        playerView.setVisibility(View.GONE);
+        miniPlayerView.startAnimation(maximize);
+        playerView.startAnimation(minimize);
         miniPlayerView.setVisibility(View.VISIBLE);
+        playerView.setVisibility(View.GONE);
     }
 
     private void openPlayerView() {
+
+        miniPlayerView.startAnimation(minimize);
+        playerView.startAnimation(maximize);
         playerView.setVisibility(View.VISIBLE);
-        miniPlayerView.setVisibility(View.GONE);
+        miniPlayerView.setVisibility(GONE);
+    }
+
+    private void updateText(String title, String artist) {
+        Runnable runnable = new Runnable() {
+            int index = 0;
+            @Override
+            public void run() {
+                if (index < title.length()) {
+                    miniSongTitle.setText(title.substring(0, index + 1));
+                    index++;
+                    handler.postDelayed(this, 100);
+                }
+            }
+        };
+        handler.postDelayed(runnable, 100);
+        runnable = new Runnable() {
+            int index = 0;
+            @Override
+            public void run() {
+                if (index < artist.length()) {
+                    miniArtist.setText(artist.substring(0, index + 1));
+                    index++;
+                    handler.postDelayed(this, 100);
+                }
+            }
+        };
+        handler.postDelayed(runnable, 100);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -326,13 +360,6 @@ public class PlayerViewManager extends ConstraintLayout {
         return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(duration) % TimeUnit.HOURS.toMinutes(1),
                 TimeUnit.MILLISECONDS.toSeconds(duration) % TimeUnit.MINUTES.toSeconds(1));
-//        String time;
-//        int h = (int) (duration/(3600000));
-//        int m = (int) ((duration%(60*60*1000))/(60000));
-//        int s = (int) ((duration%(60*60*1000)%(1000%60))/1000);
-//        if (h>1) {time = h+":"+m+":"+s;}
-//        else time = m+":"+s;
-//        return  time;
 
     }
 }

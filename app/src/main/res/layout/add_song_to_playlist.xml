@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="#000000"
     android:padding="16dp">
 
     <TextView
@@ -13,6 +14,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Choose playlist"
+        android:textColor="#a3ef00"
         android:textSize="20sp"/>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -24,12 +26,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="12dp"
         android:hint="Select Playlist"
+        app:boxStrokeColor="#a3ef00"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
         app:boxCornerRadiusBottomEnd="@dimen/m">
         <AutoCompleteTextView
             android:id="@+id/playlists_to_choose"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:inputType="none">
         </AutoCompleteTextView>
 

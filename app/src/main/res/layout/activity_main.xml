@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
+    android:background="@drawable/background"
     >
     <!--android:background="#30323C"-->
 
@@ -61,28 +62,27 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mini_player"
         android:layout_width="match_parent"
         android:layout_height="110dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/miniplayer"
-        android:paddingTop="25dp"
-        android:paddingHorizontal="12dp"
         android:elevation="100dp"
         android:outlineAmbientShadowColor="#FF0000"
-        android:visibility="visible">
+        android:paddingHorizontal="12dp"
+        android:paddingTop="25dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:animateLayoutChanges="true">
 
         <ImageView
             android:id="@+id/mini_song_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            app:layout_constraintTop_toTopOf="parent"
+            android:background="@drawable/knuckles"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@drawable/knuckles">
+            app:layout_constraintTop_toTopOf="parent">
 
         </ImageView>
 
@@ -90,64 +90,61 @@
             android:id="@+id/mini_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
             android:layout_marginLeft="12dp"
             android:layout_marginTop="5dp"
-            android:text="song title"
-            android:textSize="20dp"
+            android:ellipsize="marquee"
             android:fontFamily="@font/retro"
-            android:textColor="#B8B8B8"
             android:singleLine="true"
-            android:ellipsize="marquee">
-        </TextView>
+            android:text="song title"
+            android:textColor="#B8B8B8"
+            android:textSize="20dp"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/mini_artist"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/mini_title"
-            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
             android:layout_marginLeft="13dp"
             android:layout_marginTop="@dimen/s"
-            android:text="song title"
-            android:textSize="14dp"
+            android:ellipsize="marquee"
             android:fontFamily="@font/retro"
-            android:textColor="#B8B8B8"
             android:singleLine="true"
-            android:ellipsize="marquee">
-        </TextView>
+            android:text="song title"
+            android:textColor="#B8B8B8"
+            android:textSize="14dp"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            app:layout_constraintTop_toBottomOf="@id/mini_title" />
 
         <ImageView
             android:id="@+id/play_pause_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/progress_bar"
             android:layout_marginBottom="-8dp"
-            android:scaleY="0.6"
             android:scaleX="0.6"
+            android:scaleY="0.6"
             android:src="@drawable/play_icon"
-            app:tint="#a3ef00">
-        </ImageView>
+            app:layout_constraintBottom_toTopOf="@id/progress_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="#a3ef00"/>
 
         <ProgressBar
             android:id="@+id/progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
-            app:layout_constraintTop_toBottomOf="@id/mini_artist"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:paddingLeft="16dp"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:progressTint="#a3ef00"
-            android:progressBackgroundTint="#8165e8"
+            android:elevation="100dp"
+            android:max="100"
             android:outlineAmbientShadowColor="#FFFFFF"
             android:outlineSpotShadowColor="@color/white"
+            android:paddingLeft="16dp"
             android:progress="70"
-            android:max="100"
-            android:elevation="100dp">
+            android:progressBackgroundTint="#8165e8"
+            android:progressTint="#a3ef00"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/mini_song_icon"
+            app:layout_constraintTop_toBottomOf="@id/mini_artist">
 
         </ProgressBar>
 

@@ -35,6 +35,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
+import com.google.gson.Gson;
+import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.SVBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     Animation animation;
     PlayerViewManager playerViewManager;
     int selectedItem = RecyclerView.NO_POSITION;
+    boolean newload = true;
 
     public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, ExoPlayer player, /*PlayerViewManager playerViewManager,*/ Intent notificationIntent) {
         this.activity = activity;
@@ -73,7 +77,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         TextView titleTextView, artistTextView;
         CardView cardView;
         ImageView neonbar;
-        ImageView name_change, playlistAdd;
+        ImageView name_change, playlistAdd, color_change;
         //        ImageView iconImageView;
         public ViewHolder(View itemView) {
 
@@ -84,6 +88,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             neonbar = itemView.findViewById(R.id.side_line);
             name_change = itemView.findViewById(R.id.name_change);
             playlistAdd = itemView.findViewById(R.id.playlist_add);
+            color_change = itemView.findViewById(R.id.color_change);
 //            iconImageView = itemView.findViewById(R.id.icon);
         }
     }
@@ -91,32 +96,23 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Song songData = songList.get(position);
-        int color = createColor(songData.getTitle());
+//        int color = createColor(songData.getTitle());
         holder.titleTextView.setText(songData.getTitle());
         Shader textshader = new LinearGradient(0, 0, holder.titleTextView.getTextSize(), 0,
-                new int[]{color, 0xfff255cc},
+                new int[]{songData.color, 0xfff255cc},
                 new float[]{0, 1},
                 Shader.TileMode.CLAMP);
         holder.titleTextView.getPaint().setShader(textshader);
 
         holder.artistTextView.setText(songData.getArtist());
-        holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
-        holder.neonbar.getBackground().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        if(newload)
+            holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
+//        else newload = true;
+        holder.neonbar.getBackground().setColorFilter(songData.color, PorterDuff.Mode.SRC_ATOP);
 
         holder.name_change.setVisibility(View.GONE);
+        holder.color_change.setVisibility(View.GONE);
         holder.playlistAdd.setVisibility(View.GONE);
-
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                holder.name_change.setVisibility(View.VISIBLE);
-                holder.playlistAdd.setVisibility(View.VISIBLE);
-                int prev = selectedItem;
-                selectedItem = position;
-                notifyItemChanged(prev);
-                return true;
-            }
-        });
 
         holder.itemView.setOnClickListener(view -> {
             Log.wtf("path to self dest", songData.getPath());
@@ -136,10 +132,28 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             }
         });
 
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                holder.name_change.setVisibility(View.VISIBLE);
+                holder.color_change.setVisibility(View.VISIBLE);
+                holder.playlistAdd.setVisibility(View.VISIBLE);
+                int prev = selectedItem;
+                selectedItem = position;
+                notifyItemChanged(prev);
+                return true;
+            }
+        });
+
         holder.name_change.setOnClickListener(view -> {
             ChangeSongNameWindow(holder, songData);
         });
-        holder.playlistAdd.setOnClickListener(view -> {AddSongToPlaylist(holder, songData);});
+        holder.playlistAdd.setOnClickListener(view -> {
+            AddSongToPlaylist(holder, songData);
+        });
+        holder.color_change.setOnClickListener(view -> {
+            ChnageColorWindow(holder, songData);
+        });
     }
 
     public boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -168,7 +182,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     }
 
     private void ChangeSongNameWindow(ViewHolder holder, Song songData) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
         View view = LayoutInflater.from(activity).inflate(R.layout.fix_song_name, null);
         TextView original = view.findViewById(R.id.original_title);
         final EditText editTitle = view.findViewById(R.id.edit_title);
@@ -203,7 +217,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     }
 
     private void AddSongToPlaylist(ViewHolder holder, Song songData) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
         View view = LayoutInflater.from(activity).inflate(R.layout.add_song_to_playlist, null);
         final EditText new_name = view.findViewById(R.id.new_playlist_name);
         Button saveButton = view.findViewById(R.id.save_button);
@@ -253,6 +267,33 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             }
         });
     }
+    private void ChnageColorWindow(ViewHolder holder, Song songData) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
+        View view = LayoutInflater.from(activity).inflate(R.layout.color_picker, null);
+        final ColorPicker picker = view.findViewById(R.id.picker);
+        final SVBar svBar = view.findViewById(R.id.svbar);
+        picker.addSVBar(svBar);
+
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.show();
+            }
+        });
+
+        picker.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int color) {
+                songData.setColor(color);
+                holder.neonbar.getBackground().setColorFilter(songData.color, PorterDuff.Mode.SRC_ATOP);
+//                newload = false;
+//                notifyDataSetChanged();
+            }
+        });
+    }
 
     private int createColor(String name) {
         if (name.length() <= 3) {
@@ -268,9 +309,8 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
 
     private List<MediaItem> getMediaItems() {
         List<MediaItem> mediaItems = new ArrayList<>();
-
         for(Song song : songList) {
-            Log.wtf("words as tools", song.getImageURL());
+//            Log.wtf("words as tools", song.getImageURL());
             MediaItem mediaItem = new MediaItem.Builder()
                     .setUri(song.getPath())
                     .setMediaMetadata(getMetadata(song))
@@ -284,7 +324,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         return new MediaMetadata.Builder()
                 .setTitle(song.getTitle())
                 .setArtist(song.getArtist())
-                .setAlbumArtist(song.getImageURL()) //image URL
+                .setAlbumArtist(song.toString()) //image URL
                 .setComposer(song.getPath())
                 .build();
     }

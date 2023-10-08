@@ -46,10 +46,11 @@
                 android:scrollbars="horizontal"
                 android:ellipsize="end"
                 app:layout_constraintStart_toEndOf="@id/side_line"
-                app:layout_constraintEnd_toStartOf="@id/name_change"
+                app:layout_constraintEnd_toStartOf="@id/color_change"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textAlignment="textStart"
                 android:paddingVertical="9dp"
+                android:layout_marginRight="100px"
 >
 
 
@@ -91,12 +92,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:layout_constraintEnd_toStartOf="@id/playlist_add"
-                app:layout_constraintStart_toEndOf="@id/title"
+                app:layout_constraintStart_toEndOf="@id/color_change"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginRight="0dp"
 
                 android:src="@drawable/name_change"
+                app:tint="#a3ef00"
+                android:visibility="gone">
+            </ImageView>
+
+            <ImageView
+                android:id="@+id/color_change"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:layout_constraintEnd_toStartOf="@id/name_change"
+                app:layout_constraintStart_toEndOf="@id/title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginRight="5dp"
+
+                android:src="@drawable/color_change"
                 app:tint="#a3ef00"
                 android:visibility="gone">
             </ImageView>

@@ -2,6 +2,7 @@ package com.example.whitenoise;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,6 +34,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongListAdapter.ViewHolder> {
 
@@ -55,7 +62,7 @@ public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongLi
         return new PlaylistSongListAdapter.ViewHolder(view);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{ //nw cz ma byc static
+    public static class ViewHolder extends RecyclerView.ViewHolder{
 
         TextView titleTextView, artistTextView;
         CardView cardView;
@@ -74,7 +81,7 @@ public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongLi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlaylistSongListAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PlaylistSongListAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Song songData = psongList.get(position);
         holder.titleTextView.setText(songData.getTitle());
 
@@ -101,6 +108,25 @@ public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongLi
                 player.play();
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                holder.name_change.setVisibility(View.VISIBLE);
+                holder.playlistAdd.setVisibility(View.VISIBLE);
+                int prev = selectedItem;
+                selectedItem = position;
+                notifyItemChanged(prev);
+                return true;
+            }
+        });
+
+        holder.name_change.setOnClickListener(view -> {
+            ChangeSongNameWindow(holder, songData);
+        });
+//        holder.playlistAdd.setOnClickListener(view -> {
+//            AddSongToPlaylist(holder, songData);
+//        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -141,7 +167,40 @@ public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongLi
         handler.postDelayed(runnableCode, 600000);
     }
 
+    private void ChangeSongNameWindow(PlaylistSongListAdapter.ViewHolder holder, Song songData) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        View view = LayoutInflater.from(activity).inflate(R.layout.fix_song_name, null);
+        TextView original = view.findViewById(R.id.original_title);
+        final EditText editTitle = view.findViewById(R.id.edit_title);
+        final EditText editArtist = view.findViewById(R.id.edit_artist);
+        Button saveButton = view.findViewById(R.id.save_button);
 
+        original.setText(songData.getFull_name());
+        editTitle.setText(holder.titleTextView.getText());
+        editArtist.setText(holder.artistTextView.getText());
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog.show();
+            }
+        });
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = editTitle.getText().toString();
+                String artist = editArtist.getText().toString();
+                holder.titleTextView.setText(title);
+                holder.artistTextView.setText(artist);
+                songData.title = title;
+                songData.artist = artist;
+                dialog.dismiss();
+            }
+        });
+    }
 
     private List<MediaItem> getMediaItems() {
         List<MediaItem> mediaItems = new ArrayList<>();

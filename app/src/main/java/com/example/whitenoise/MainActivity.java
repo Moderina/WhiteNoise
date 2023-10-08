@@ -32,6 +32,8 @@ import android.util.Log;
 import android.view.View;
 import androidx.appcompat.widget.SearchView;
 
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Playlist> allPlaylists = new ArrayList<>();
     ArrayList<Song> serialized = new ArrayList<>();
     ArrayList<Playlist> pserialized = new ArrayList<>();
-    TextView noMusicTextView;
+
 
     //Fragments
     SongListFragment songListFragment;
@@ -90,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
     ImageView prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon;
     TextView miniSongTitle, miniArtist;
     ImageView miniNextBtn, miniPlayPauseBtn, miniMusicIcon;
-    ConstraintLayout  homeControlWrapper, headWrapper, seekbarWrapper;
     WaveformSeekBar seekbar;
     ProgressBar progressBar;
     TextView currentTime, durationTime;
@@ -128,9 +129,6 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ColorUtils.setAlphaComponent(485937, 199));
         getWindow().setNavigationBarColor(ColorUtils.setAlphaComponent(37489, 199));
 
-//        recyclerView = findViewById(R.id.recycler_view);
-//        playlistRecyclerView = findViewById(R.id.playlist_recycler_view);
-//        playlistSongListRecyclerView = findViewById(R.id.playlist_songlist_recyclerview);
 
         searchView = findViewById(R.id.search_view);
         barLeftBtn = findViewById(R.id.knuck);
@@ -155,22 +153,15 @@ public class MainActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
         miniMusicIcon = findViewById(R.id.mini_song_icon);
 
-        //wrappers
-//        recyclerViewLayout = findViewById(R.id.recycler_layout);
-//        playlistRecyclerLayout = findViewById(R.id.playlist_recycler_layout);
-//        playlistView = findViewById(R.id.playlist_view);
         playerView = findViewById(R.id.player_view);
         appBarView = findViewById(R.id.appbar);
         miniPlayerView = findViewById(R.id.mini_player);
-
-//        playlistRecyclerLayout.setVisibility(View.GONE);
-//        playlistView.setVisibility(View.GONE);
 
 
 
         player = new ExoPlayer.Builder(this).build();
 
-        view_manager = new PlayerViewManager(this, allSongs, player, playerView, miniPlayerView, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
+        view_manager = new PlayerViewManager(this, player, playerView, miniPlayerView, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
         notificationIntent = new Intent(this, Notification.class);
 
 
@@ -187,6 +178,12 @@ public class MainActivity extends AppCompatActivity {
         Log.wtf("closing", "closing");
 //        allPlaylists = songListAdapter.getUpdatedPlaylists();
         serializeSongData();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         if (player.isPlaying()) player.stop();
         player.release();
         stopService(notificationIntent);
@@ -250,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
+                playerView.setVisibility(View.GONE);
                 searchView.setQueryHint("How you feelin");
                 ImageView i1 = findViewById(R.id.knuck);
                 ImageView i2 = findViewById(R.id.knuck2);
@@ -397,6 +395,7 @@ public class MainActivity extends AppCompatActivity {
                         song.title = ssong.getTitle();
                         song.artist = ssong.getArtist();
                         song.setImageURL(ssong.getImageURL());
+                        song.setWaveform(ssong.getWaveform());
                     }
                 }
             }
@@ -479,16 +478,18 @@ public class MainActivity extends AppCompatActivity {
         return new String[]{title, artist};
     }
 
-    public void SaveSongImage(String url){
+    public Song getSong(){
         MediaItem current = player.getCurrentMediaItem();
         Log.wtf("fall away", (String) current.mediaMetadata.composer);
         for (Song song:allSongs) {
             if (song.getPath().equals(current.mediaMetadata.composer)) {
-                song.setImageURL(url);
-                Log.wtf("ms believer", song.imageURL);
-                Toast.makeText(MainActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
+                return song;
+//                song.setImageURL(url);
+//                Log.wtf("ms believer", song.imageURL);
+//                Toast.makeText(MainActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
             }
         }
+        return null;
     }
 
 
