@@ -11,19 +11,14 @@
         android:layout_height="wrap_content"
         android:theme="@style/Theme.MaterialComponents.DayNight"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginVertical="@dimen/s"
-        android:layout_marginHorizontal="6dp"
-        app:cardCornerRadius="@dimen/xs"
-        app:cardElevation="8dp">
+        app:cardBackgroundColor="#00000000">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/song_background"
-            android:backgroundTintMode="screen"
-            android:backgroundTint="@color/purple_700">
+            android:layout_width="200dp"
+            android:layout_height="180dp"
+            android:background="@drawable/folder">
 
             <ImageView
                 android:id="@+id/side_lin"
@@ -31,8 +26,10 @@
                 android:layout_height="60dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginLeft="10dp"
                 android:background="@drawable/neon_bar"
-                android:backgroundTint="#FFBB86"
+                android:backgroundTint="#FF7000"
                 android:contentDescription="@string/app_name">
             </ImageView>
 
@@ -50,7 +47,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:textAlignment="textStart"
-                android:paddingLeft="16dp"
+                android:paddingLeft="0dp"
                 android:paddingVertical="8dp"
                 >
 

@@ -54,6 +54,8 @@ public class Song implements Serializable {
 
     public void setWaveform(int[] w) { waveform = w; }
 
+    public int getColor() {return color;}
+
     public void setColor(int col) { color = col; }
 
     private int createColor() {

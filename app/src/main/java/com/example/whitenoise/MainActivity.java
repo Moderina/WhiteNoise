@@ -255,31 +255,31 @@ public class MainActivity extends AppCompatActivity {
                 loadSongsView();
                 playerView.setVisibility(View.GONE);
                 searchView.setQueryHint("How you feelin");
-                ImageView i1 = findViewById(R.id.knuck);
-                ImageView i2 = findViewById(R.id.knuck2);
-                ConstraintLayout constraintLayout = findViewById(R.id.appbar);
-                ConstraintLayout mini_player = findViewById(R.id.mini_player);
-                int padding_in_dp = (int)(constraintLayout.getPaddingLeft()/ getResources().getDisplayMetrics().density);
-
-                if (padding_in_dp == 50) {
-                    int padding_in_px = (int)(10 * getResources().getDisplayMetrics().density + 0.5f);
-                    constraintLayout.setPadding(padding_in_px, 0,padding_in_px,0);
-                    i1.setScaleX(0.6f);
-                    i1.setScaleY(0.6f);
-                    i2.setScaleX(0.6f);
-                    i2.setScaleY(0.6f);
-                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.GONE);
-
-                }
-                else {
-                    int padding_in_px = (int)(50 * getResources().getDisplayMetrics().density + 0.5f);
-                    constraintLayout.setPadding(padding_in_px,0,padding_in_px,0);
-                    i1.setScaleX(1f);
-                    i1.setScaleY(1f);
-                    i2.setScaleX(1f);
-                    i2.setScaleY(1f);
-                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.VISIBLE);
-                }
+//                ImageView i1 = findViewById(R.id.knuck);
+//                ImageView i2 = findViewById(R.id.knuck2);
+//                ConstraintLayout constraintLayout = findViewById(R.id.appbar);
+//                ConstraintLayout mini_player = findViewById(R.id.mini_player);
+//                int padding_in_dp = (int)(constraintLayout.getPaddingLeft()/ getResources().getDisplayMetrics().density);
+//
+//                if (padding_in_dp == 50) {
+//                    int padding_in_px = (int)(10 * getResources().getDisplayMetrics().density + 0.5f);
+//                    constraintLayout.setPadding(padding_in_px, 0,padding_in_px,0);
+//                    i1.setScaleX(0.6f);
+//                    i1.setScaleY(0.6f);
+//                    i2.setScaleX(0.6f);
+//                    i2.setScaleY(0.6f);
+//                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.GONE);
+//
+//                }
+//                else {
+//                    int padding_in_px = (int)(50 * getResources().getDisplayMetrics().density + 0.5f);
+//                    constraintLayout.setPadding(padding_in_px,0,padding_in_px,0);
+//                    i1.setScaleX(1f);
+//                    i1.setScaleY(1f);
+//                    i2.setScaleX(1f);
+//                    i2.setScaleY(1f);
+//                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.VISIBLE);
+//                }
             }
         });
 
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
     private void fetch_songs() {
         ArrayList<Song> songs = new ArrayList<>();
         Uri mediaStoreUri;
-
+        Log.wtf("hello", "?");
         mediaStoreUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 
         String[] projection = new String[] {
@@ -476,13 +476,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     public String[] nameNartist (String title, String artist) {
-
+        if(title.contains("["))
+        {
+            Log.wtf("falling", title);
+            title = title.substring(0, title.lastIndexOf("["));
+        }
+        Log.wtf("dis is", title);
+        artist = title;
         if(title.contains("-")) {
             artist = title.substring(0, title.indexOf("-"));
-            title = title.substring(title.indexOf("-")+2, title.lastIndexOf("."));
-            if(title.contains("[")) {
-                title = title.substring(0, title.lastIndexOf("["));
-            }
+            title = title.substring(title.indexOf("-")+2);
         }
         if(title.contains("(Lyric")) {
             title = title.substring(0, title.indexOf("(Lyric"));

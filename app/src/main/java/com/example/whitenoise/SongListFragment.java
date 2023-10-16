@@ -7,10 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
+import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +23,9 @@ import com.google.android.exoplayer2.ExoPlayer;
 import java.util.ArrayList;
 
 public class SongListFragment extends Fragment {
-    TextView noMusicTextView;
+    ConstraintLayout noMusicTextView;
+    Button ytButton;
+    ProgressBar loading;
 
     RecyclerView recyclerView;
     MusicListAdapter songListAdapter;
@@ -28,6 +33,7 @@ public class SongListFragment extends Fragment {
     ArrayList<Playlist> allPlaylists;
     ExoPlayer player;
     Intent notificationIntent;
+
 
 //    public static SongListFragment newInstance(ArrayList<Song> allSongs, ArrayList<Playlist> allPlaylists, ViewManager view_manager, Intent notificationIntent) {
 //
@@ -50,7 +56,8 @@ public class SongListFragment extends Fragment {
         notificationIntent = ma.notificationIntent;
 
         noMusicTextView = view.findViewById(R.id.no_songs);
-
+        ytButton = view.findViewById(R.id.yt_search);
+        loading = view.findViewById(R.id.loading_icon);
 
         songListAdapter = new MusicListAdapter((MainActivity) getActivity(), allSongs, allPlaylists, player, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
@@ -59,6 +66,11 @@ public class SongListFragment extends Fragment {
             noMusicTextView.setVisibility(View.VISIBLE);
         }
         noMusicTextView.setVisibility(View.INVISIBLE);
+
+        ytButton.setOnClickListener(view1 -> {
+            noMusicTextView.setVisibility(view1.INVISIBLE);
+            loading.setVisibility(view1.VISIBLE);
+        });
 
         return view;
     }
@@ -75,8 +87,14 @@ public class SongListFragment extends Fragment {
                     filteredList.add(song);
                 }
             }
-            if (filteredList.size() == 0) noMusicTextView.setVisibility(View.VISIBLE);
-            else noMusicTextView.setVisibility(View.INVISIBLE);
+            if (filteredList.size() == 0) {
+                noMusicTextView.setVisibility(View.VISIBLE);
+                ytButton.setVisibility(View.VISIBLE);
+            }
+            else {
+                noMusicTextView.setVisibility(View.INVISIBLE);
+                ytButton.setVisibility(View.INVISIBLE);
+            }
             if (songListAdapter != null) {
                 songListAdapter.filterSongs(filteredList);
             }

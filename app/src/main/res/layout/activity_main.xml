@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:background="@drawable/background"
+    android:background="@drawable/background_line"
+    android:backgroundTintMode="multiply"
+    android:backgroundTint="#321568"
     >
     <!--android:background="#30323C"-->
 
@@ -17,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:paddingHorizontal="50dp"
+        android:paddingHorizontal="5dp"
         android:background="@color/background2"
         android:outlineAmbientShadowColor="#000000"
         android:elevation="20dp">
@@ -79,7 +81,6 @@
             android:id="@+id/mini_song_icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/knuckles"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">

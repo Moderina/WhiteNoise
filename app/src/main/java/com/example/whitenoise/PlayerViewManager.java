@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothHeadset;
 import android.content.Context;
 
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -139,7 +140,7 @@ public class PlayerViewManager extends ConstraintLayout {
 
     private void playerControls() {
         playerCloseBtn.setOnClickListener(view -> exitPlayerView());
-        miniPlayerView.setOnClickListener(view -> openPlayerView());
+        miniPlayerView.setOnClickListener(view -> openPlayerView(view));
         musicIcon.setOnClickListener(view -> loadImage(""));
         seekbar.setOnProgressChanged((waveformSeekBar, progress, user) -> {
             if (user) {
@@ -221,10 +222,10 @@ public class PlayerViewManager extends ConstraintLayout {
     public void loadSongData(MediaItem mediaItem) {
         song = ((MainActivity) context).getSong();
         if (song == null) return;
-        if(song.waveform == null)
-            Log.wtf("after", "no waveform");
-        else
-            Log.wtf("after", song.waveform.toString());
+//        if(song.waveform == null)
+//            Log.wtf("after", "no waveform");
+//        else
+//            Log.wtf("after", song.waveform.toString());
         if(playerView.getVisibility() == GONE)
             miniPlayerView.setVisibility(VISIBLE);
         songTitle.setText(mediaItem.mediaMetadata.title);
@@ -244,6 +245,8 @@ public class PlayerViewManager extends ConstraintLayout {
         }
         else
             seekbar.setSample(song.getWaveform());
+        background1.setColorFilter(song.getColor(), PorterDuff.Mode.MULTIPLY);
+        background2.setColorFilter(song.getColor(), PorterDuff.Mode.MULTIPLY);
         Log.wtf("he pretends",song.getImageURL());
         loadImage(song.getImageURL());
     }
@@ -269,7 +272,7 @@ public class PlayerViewManager extends ConstraintLayout {
         }
         String readyQuery = songTitle.getText() + "+" + miniArtist.getText() + "";
         readyQuery = readyQuery.replaceAll(" ", "+");
-        url = "https://www.googleapis.com/customsearch/v1?key=AIzaSyCwtzt1pkN224u3iVuPD3_Tnkt9m1qxzbo&cx=85ddd9c7a287347a8&q=" + readyQuery + "&searchType=image&imgType=photo";
+        url = "https://www.googleapis.com/customsearch/v1?key=" + getResources().getString(R.string.google) + "&cx=85ddd9c7a287347a8&q=" + readyQuery + "&searchType=image&imgType=photo";
         Log.wtf("spirit", url);
         Request request = new Request.Builder().url(url).build();
         httpclient.newCall(request).enqueue(new Callback() {
@@ -319,8 +322,10 @@ public class PlayerViewManager extends ConstraintLayout {
         playerView.setVisibility(View.GONE);
     }
 
-    private void openPlayerView() {
-
+    private void openPlayerView(View view) {
+        ((MainActivity) context).searchView.setIconified(true);
+        ((MainActivity) context).searchView.onActionViewCollapsed();
+        StaticClass.hideKeyboardFrom(context, view);
         miniPlayerView.startAnimation(minimize);
         playerView.startAnimation(maximize);
         playerView.setVisibility(View.VISIBLE);
