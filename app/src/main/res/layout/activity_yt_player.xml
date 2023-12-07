@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/yt_player_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="56dp"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:clickable="true"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/background1_yt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background_back"
+        android:tintMode="multiply"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        app:tint="@color/red_yt">
+    </ImageView>
+    <ImageView
+        android:id="@+id/background2_yt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background_back"
+        android:tintMode="multiply"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        app:tint="@color/red_yt">
+    </ImageView>
+    <ImageView
+        android:id="@+id/background_front"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background_front"
+        android:scaleX="1.2"
+        android:scaleY="1.2">
+    </ImageView>
+
+    <TextView
+        android:id="@+id/backBtn_yt"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="10dp"
+        android:background="@drawable/minimalize"
+        android:backgroundTint="#a3ef00">
+
+    </TextView>
+
+    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+        android:id="@+id/youtube_player_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

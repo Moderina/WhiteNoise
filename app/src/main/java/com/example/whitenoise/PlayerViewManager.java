@@ -140,7 +140,7 @@ public class PlayerViewManager extends ConstraintLayout {
 
     private void playerControls() {
         playerCloseBtn.setOnClickListener(view -> exitPlayerView());
-        miniPlayerView.setOnClickListener(view -> openPlayerView(view));
+//        miniPlayerView.setOnClickListener(view -> openPlayerView(view));
         musicIcon.setOnClickListener(view -> loadImage(""));
         seekbar.setOnProgressChanged((waveformSeekBar, progress, user) -> {
             if (user) {
@@ -322,10 +322,10 @@ public class PlayerViewManager extends ConstraintLayout {
         playerView.setVisibility(View.GONE);
     }
 
-    private void openPlayerView(View view) {
-        ((MainActivity) context).searchView.setIconified(true);
-        ((MainActivity) context).searchView.onActionViewCollapsed();
-        StaticClass.hideKeyboardFrom(context, view);
+    public void openPlayerView() {
+//        ((MainActivity) context).searchView.setIconified(true);
+//        ((MainActivity) context).searchView.onActionViewCollapsed();
+//        StaticClass.hideKeyboardFrom(context, view);
         miniPlayerView.startAnimation(minimize);
         playerView.startAnimation(maximize);
         playerView.setVisibility(View.VISIBLE);

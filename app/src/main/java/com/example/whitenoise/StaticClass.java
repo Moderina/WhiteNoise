@@ -11,3 +11,4 @@ public class StaticClass {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
+

@@ -44,6 +44,8 @@ import android.widget.ViewFlipper;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.masoudss.lib.WaveformSeekBar;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 import com.squareup.picasso.Picasso;
 
 import java.io.FileInputStream;
@@ -53,6 +55,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -63,14 +67,11 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     PlayerViewManager view_manager;
+    YTViewManager yt_view_manager;
     Intent notificationIntent;
-    IntentFilter filter;
 
     //main variables
-    RecyclerView recyclerView, playlistRecyclerView, playlistSongListRecyclerView;
-    MusicListAdapter songListAdapter;
-    PlaylistAdapter playlistAdapter;
-    PlaylistSongListAdapter playlistSongListAdapter;
+    RecyclerView playlistRecyclerView;
     SearchView searchView;
     ImageView barLeftBtn, barRightBtn;
     ArrayList<Song> allSongs = new ArrayList<>();
@@ -85,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
     PlaylistListFragment playlistListFragment;
 
     //main layouts
-    ConstraintLayout playerView, recyclerViewLayout, appBarView, miniPlayerView, playlistView, playlistRecyclerLayout;
+    ConstraintLayout playerView, ytPlayerView, appBarView, miniPlayerView;
 
 
     //music View variables
-    TextView playerCloseBtn;
+    TextView playerCloseBtn, playerCloseBtnYT;
     TextView songTitle;
     ImageView background1, background2;
     ImageView prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     //dependencies
     ExoPlayer player;
+    YouTubePlayerView youTubePlayerView;
 
     //permissions
     ActivityResultLauncher<String> storagePermissionLauncher;
@@ -116,7 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
         storagePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
             if (granted) {
-                fetch_songs();
+                Log.wtf("main", String.valueOf(Thread.currentThread().getId()));
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    Log.wtf("main", String.valueOf(Thread.currentThread().getId()));
+                    fetch_songs();
+                });
             } else userResponse();
         });
         storagePermissionLauncher.launch(permission);
@@ -150,6 +157,9 @@ public class MainActivity extends AppCompatActivity {
         currentTime = findViewById(R.id.current_time);
         durationTime = findViewById(R.id.max_time);
 
+        //YT player
+        youTubePlayerView = findViewById(R.id.youtube_player_view);
+        playerCloseBtnYT = findViewById(R.id.backBtn_yt);
 
         //mini player
         miniSongTitle = findViewById(R.id.mini_title);
@@ -159,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         miniMusicIcon = findViewById(R.id.mini_song_icon);
 
         playerView = findViewById(R.id.player_view);
+        ytPlayerView = findViewById(R.id.yt_player_view);
         appBarView = findViewById(R.id.appbar);
         miniPlayerView = findViewById(R.id.mini_player);
 
@@ -167,14 +178,26 @@ public class MainActivity extends AppCompatActivity {
         player = new ExoPlayer.Builder(this).build();
 
         view_manager = new PlayerViewManager(this, player, playerView, miniPlayerView, background1, background2, playerCloseBtn, songTitle, prevBtn, nextBtn, playPauseBtn, repeatBtn, playlistBtn, musicIcon, miniSongTitle, miniArtist, miniNextBtn, miniPlayPauseBtn, miniMusicIcon, seekbar, progressBar, currentTime, durationTime);
+        yt_view_manager = new YTViewManager(this, youTubePlayerView, ytPlayerView, miniPlayerView, background1, background2, playerCloseBtnYT);
         notificationIntent = new Intent(this, Notification.class);
 
-
         deserializeData();
-        searchViewChange(searchView);
+        setMiniPlayerListener();
         appControls();
-        playerControls();
+        loadMainView();
 //        loadSongsView();
+        searchViewChange(searchView);
+        playerControls();
+    }
+
+    private void setMiniPlayerListener() {
+        miniPlayerView.setOnClickListener(view -> {
+            this.searchView.setIconified(true);
+            this.searchView.onActionViewCollapsed();
+            StaticClass.hideKeyboardFrom(this, view);
+            if(songListFragment.getCurrentPlayer()) yt_view_manager.openPlayerView();
+            else view_manager.openPlayerView();
+        });
     }
 
     @Override
@@ -252,34 +275,11 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
+                Log.wtf("doom", "change who i am");
                 loadSongsView();
                 playerView.setVisibility(View.GONE);
+                ytPlayerView.setVisibility(View.GONE);
                 searchView.setQueryHint("How you feelin");
-//                ImageView i1 = findViewById(R.id.knuck);
-//                ImageView i2 = findViewById(R.id.knuck2);
-//                ConstraintLayout constraintLayout = findViewById(R.id.appbar);
-//                ConstraintLayout mini_player = findViewById(R.id.mini_player);
-//                int padding_in_dp = (int)(constraintLayout.getPaddingLeft()/ getResources().getDisplayMetrics().density);
-//
-//                if (padding_in_dp == 50) {
-//                    int padding_in_px = (int)(10 * getResources().getDisplayMetrics().density + 0.5f);
-//                    constraintLayout.setPadding(padding_in_px, 0,padding_in_px,0);
-//                    i1.setScaleX(0.6f);
-//                    i1.setScaleY(0.6f);
-//                    i2.setScaleX(0.6f);
-//                    i2.setScaleY(0.6f);
-//                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.GONE);
-//
-//                }
-//                else {
-//                    int padding_in_px = (int)(50 * getResources().getDisplayMetrics().density + 0.5f);
-//                    constraintLayout.setPadding(padding_in_px,0,padding_in_px,0);
-//                    i1.setScaleX(1f);
-//                    i1.setScaleY(1f);
-//                    i2.setScaleX(1f);
-//                    i2.setScaleY(1f);
-//                    if (playerView.getVisibility() == View.GONE && player.isPlaying()) mini_player.setVisibility(View.VISIBLE);
-//                }
             }
         });
 
@@ -293,8 +293,9 @@ public class MainActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (playerView.getVisibility() == View.VISIBLE) {
+                if (playerView.getVisibility() == View.VISIBLE || ytPlayerView.getVisibility() == View.VISIBLE) {
                     playerView.setVisibility(View.GONE);
+                    ytPlayerView.setVisibility(View.GONE);
                     miniPlayerView.setVisibility(View.VISIBLE);
                 }
             }
@@ -305,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadMainView()
     {
         playerView.setVisibility(View.GONE);
+        ytPlayerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
         if (mainScreenFragment == null) {
             mainScreenFragment = new MainScreen();
@@ -478,10 +480,8 @@ public class MainActivity extends AppCompatActivity {
     public String[] nameNartist (String title, String artist) {
         if(title.contains("["))
         {
-            Log.wtf("falling", title);
             title = title.substring(0, title.lastIndexOf("["));
         }
-        Log.wtf("dis is", title);
         artist = title;
         if(title.contains("-")) {
             artist = title.substring(0, title.indexOf("-"));
@@ -502,7 +502,6 @@ public class MainActivity extends AppCompatActivity {
 
     public Song getSong(){
         MediaItem current = player.getCurrentMediaItem();
-        Log.wtf("fall away", (String) current.mediaMetadata.composer);
         for (Song song:allSongs) {
             if (song.getPath().equals(current.mediaMetadata.composer)) {
                 return song;
@@ -517,7 +516,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void userResponse() {
         if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
-            fetch_songs();
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                fetch_songs();
+            });
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (shouldShowRequestPermissionRationale(permission)) {
                 Toast.makeText(MainActivity.this, "ALLOW ACCESS LOSER", Toast.LENGTH_SHORT).show();

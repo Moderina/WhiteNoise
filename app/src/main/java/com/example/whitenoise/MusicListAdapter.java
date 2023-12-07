@@ -5,11 +5,10 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
-import android.net.Uri;
+import android.media.Image;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -25,61 +24,61 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
-import com.google.gson.Gson;
 import com.larswerkman.holocolorpicker.ColorPicker;
 import com.larswerkman.holocolorpicker.SVBar;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.ViewHolder>{
+public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     MainActivity activity;
     ArrayList<Song> songList;
     ArrayList<Playlist> playlistsList;
+    ArrayList<YtSong> ytSongsList;
     Intent notificationIntent;
     ExoPlayer player;
+    YouTubePlayer youTubePlayer;
     Animation animation;
     PlayerViewManager playerViewManager;
     int selectedItem = RecyclerView.NO_POSITION;
+    boolean yt_playing = false;
     boolean newload = true;
 
     public MusicListAdapter(MainActivity activity, ArrayList<Song> songList, ArrayList<Playlist> allPlaylists, ExoPlayer player, /*PlayerViewManager playerViewManager,*/ Intent notificationIntent) {
         this.activity = activity;
         this.songList = songList;
         this.playlistsList = allPlaylists;
+        ytSongsList = new ArrayList<>();
         this.player = player;
 //        this.playerViewManager = playerViewManager;
         this.notificationIntent = notificationIntent;
         animation = AnimationUtils.loadAnimation(activity, R.anim.fade_in);
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(activity).inflate(R.layout.song_element, parent, false);
-        view.findViewById(R.id.song_card).setAnimation(animation);
-        return new ViewHolder(view);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder{ //nw cz ma byc static
+    public static class ViewHolder0 extends RecyclerView.ViewHolder{ //nw cz ma byc static
 
         TextView titleTextView, artistTextView;
         CardView cardView;
         ImageView neonbar;
         ImageView name_change, playlistAdd, color_change;
         //        ImageView iconImageView;
-        public ViewHolder(View itemView) {
+        public ViewHolder0(View itemView) {
 
             super(itemView);
             titleTextView = itemView.findViewById(R.id.title);
@@ -93,67 +92,151 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         }
     }
 
+    public static class ViewHolder1 extends RecyclerView.ViewHolder{ //nw cz ma byc static
+
+        TextView name;
+        public ViewHolder1(View itemView) {
+
+            super(itemView);
+            name = itemView.findViewById(R.id.title);
+        }
+    }
+
+    public static class ViewHolder2 extends RecyclerView.ViewHolder {
+
+        TextView title, artist;
+        ImageView thumnail;
+        public ViewHolder2(View itemView) {
+            super(itemView);
+            title = itemView.findViewById(R.id.title);
+            artist = itemView.findViewById(R.id.artist);
+            thumnail = itemView.findViewById(R.id.thumnail);
+        }
+    }
+
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        Song songData = songList.get(position);
+    public int getItemViewType(int position) {
+        // Just as an example, return 0 or 2 depending on position
+        // Note that unlike in ListView adapters, types don't have to be contiguous
+        Log.wtf("debvil is read", String.valueOf(songList.size()));
+        if (position < songList.size()) return 0;
+        if (position < songList.size() + playlistsList.size()) return 1;
+        return 2;
+//        return position >= songList.size() ? 1 : 0;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(activity).inflate(R.layout.song_element, parent, false);
+        view.findViewById(R.id.song_card).setAnimation(animation);
+        switch(viewType)
+        {
+            case 0:
+            default:
+                return new ViewHolder0(view);
+
+            case 1:
+                view = LayoutInflater.from(activity).inflate(R.layout.playlist_element, parent, false);
+                return new ViewHolder1(view);
+
+            case 2:
+                view = LayoutInflater.from(activity).inflate(R.layout.yt_song_element, parent, false);
+                return  new ViewHolder2(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+        switch(holder.getItemViewType())
+        {
+            case 0:
+                ViewHolder0 holder0 = (ViewHolder0) holder;
+
+                Song songData = songList.get(position);
 //        int color = createColor(songData.getTitle());
-        holder.titleTextView.setText(songData.getTitle());
-        Shader textshader = new LinearGradient(0, 0, holder.titleTextView.getTextSize(), 0,
-                new int[]{songData.color, 0xfff255cc},
-                new float[]{0, 1},
-                Shader.TileMode.CLAMP);
-        holder.titleTextView.getPaint().setShader(textshader);
+                holder0.titleTextView.setText(songData.getTitle());
+                Shader textshader = new LinearGradient(0, 0, holder0.titleTextView.getTextSize(), 0,
+                        new int[]{songData.color, 0xfff255cc},
+                        new float[]{0, 1},
+                        Shader.TileMode.CLAMP);
+                holder0.titleTextView.getPaint().setShader(textshader);
 
-        holder.artistTextView.setText(songData.getArtist());
-        if(newload)
-            holder.cardView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
+                holder0.artistTextView.setText(songData.getArtist());
+                if(newload)
+                    holder0.cardView.startAnimation(AnimationUtils.loadAnimation(holder0.itemView.getContext(), R.anim.fade_in));
 //        else newload = true;
-        holder.neonbar.getBackground().setColorFilter(songData.color, PorterDuff.Mode.SRC_ATOP);
+                holder0.neonbar.getBackground().setColorFilter(songData.color, PorterDuff.Mode.SRC_ATOP);
 
-        holder.name_change.setVisibility(View.GONE);
-        holder.color_change.setVisibility(View.GONE);
-        holder.playlistAdd.setVisibility(View.GONE);
+                holder0.name_change.setVisibility(View.GONE);
+                holder0.color_change.setVisibility(View.GONE);
+                holder0.playlistAdd.setVisibility(View.GONE);
 
-        holder.itemView.setOnClickListener(view -> {
-            Log.wtf("path to self dest", songData.getPath());
-            if (!player.isPlaying()) {
-                player.setMediaItems(getMediaItems(), position, 0);
-                player.prepare();
-                player.play();
-                if (!isMyServiceRunning(Notification.class))
-                    activity.startService(notificationIntent);
-                checkToKeepAppAlive();
-            }
-            else {
-                player.pause();
-                player.setMediaItems(getMediaItems(), position, 0);
-                player.prepare();
-                player.play();
-            }
-        });
+                holder0.itemView.setOnClickListener(view -> {
+                    yt_playing = false;
+                    youTubePlayer.pause();
+                    Log.wtf("path to self dest", songData.getPath());
+                    if (!player.isPlaying()) {
+                        player.setMediaItems(getMediaItems(), position, 0);
+                        player.prepare();
+                        player.play();
+                        if (!isMyServiceRunning(Notification.class))
+                            activity.startService(notificationIntent);
+                        checkToKeepAppAlive();
+                    }
+                    else {
+                        player.pause();
+                        player.setMediaItems(getMediaItems(), position, 0);
+                        player.prepare();
+                        player.play();
+                    }
+                });
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                holder.name_change.setVisibility(View.VISIBLE);
-                holder.color_change.setVisibility(View.VISIBLE);
-                holder.playlistAdd.setVisibility(View.VISIBLE);
-                int prev = selectedItem;
-                selectedItem = position;
-                notifyItemChanged(prev);
-                return true;
-            }
-        });
+                holder0.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        holder0.name_change.setVisibility(View.VISIBLE);
+                        holder0.color_change.setVisibility(View.VISIBLE);
+                        holder0.playlistAdd.setVisibility(View.VISIBLE);
+                        int prev = selectedItem;
+                        selectedItem = position;
+                        notifyItemChanged(prev);
+                        return true;
+                    }
+                });
 
-        holder.name_change.setOnClickListener(view -> {
-            ChangeSongNameWindow(holder, songData);
-        });
-        holder.playlistAdd.setOnClickListener(view -> {
-            AddSongToPlaylist(holder, songData);
-        });
-        holder.color_change.setOnClickListener(view -> {
-            ChnageColorWindow(holder, songData);
-        });
+                holder0.name_change.setOnClickListener(view -> {
+                    ChangeSongNameWindow(holder0, songData);
+                });
+                holder0.playlistAdd.setOnClickListener(view -> {
+                    AddSongToPlaylist(holder0, songData);
+                });
+                holder0.color_change.setOnClickListener(view -> {
+                    ChnageColorWindow(holder0, songData);
+                });
+                break;
+
+            case 1:
+                ViewHolder1 holder1 = (ViewHolder1) holder;
+                Playlist playData = playlistsList.get(position - songList.size());
+                holder1.name.setText(playData.getName());
+                break;
+
+            case 2:
+                ViewHolder2 holder2 = (ViewHolder2) holder;
+                YtSong song = ytSongsList.get(position - songList.size() - playlistsList.size());
+                holder2.title.setText(song.getTitle());
+                holder2.artist.setText(song.getArtist());
+                Glide.with(activity)
+                        .load(song.getImageURL())
+                        .into(holder2.thumnail);
+
+                holder2.itemView.setOnClickListener(view -> {
+                    yt_playing = true;
+                    player.pause();
+                    youTubePlayer.loadVideo(song.getVideoID(), 0f);
+                });
+        }
+
     }
 
     public boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -181,7 +264,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         handler.postDelayed(runnableCode, 600000);
     }
 
-    private void ChangeSongNameWindow(ViewHolder holder, Song songData) {
+    private void ChangeSongNameWindow(ViewHolder0 holder, Song songData) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
         View view = LayoutInflater.from(activity).inflate(R.layout.fix_song_name, null);
         TextView original = view.findViewById(R.id.original_title);
@@ -216,7 +299,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
         });
     }
 
-    private void AddSongToPlaylist(ViewHolder holder, Song songData) {
+    private void AddSongToPlaylist(ViewHolder0 holder, Song songData) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
         View view = LayoutInflater.from(activity).inflate(R.layout.add_song_to_playlist, null);
         final EditText new_name = view.findViewById(R.id.new_playlist_name);
@@ -267,7 +350,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
             }
         });
     }
-    private void ChnageColorWindow(ViewHolder holder, Song songData) {
+    private void ChnageColorWindow(ViewHolder0 holder, Song songData) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.TransparentDialog);
         View view = LayoutInflater.from(activity).inflate(R.layout.color_picker, null);
         final ColorPicker picker = view.findViewById(R.id.picker);
@@ -329,6 +412,10 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
                 .build();
     }
 
+    public void setYTPlayer(YouTubePlayer yt) {
+        youTubePlayer = yt;
+    }
+
     public void playlistSongs(ArrayList<String> songs) {
         ArrayList<Song> temp = new ArrayList<>();
         for (String uri : songs) {
@@ -345,15 +432,24 @@ public class MusicListAdapter extends RecyclerView.Adapter<MusicListAdapter.View
     }
 
 
-    public void filterSongs(ArrayList<Song> filteredList) {
+    public void filterSongs(ArrayList<Song> filteredList, ArrayList<Playlist> filteredplay) {
         songList = filteredList;
+        playlistsList = filteredplay;
+        if (songList.size() > 0 || playlistsList.size() > 0) ytSongsList.clear();
+        notifyDataSetChanged();
+    }
+
+    public void loadYtSongs(ArrayList<YtSong> ytSongs) {
+        ytSongsList = ytSongs;
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return songList.size();
+        return songList.size() + playlistsList.size() + ytSongsList.size();
     }
+
+    public boolean getCurrentPlayer() {return yt_playing;}
 
     public ArrayList<Playlist> getUpdatedPlaylists() {
         Log.wtf("losing", "failing");
