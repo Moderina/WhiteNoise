@@ -71,6 +71,7 @@ public class PlayerViewManager extends ConstraintLayout {
     OkHttpClient httpclient;
     boolean Btstatus;
     final Handler handler = new Handler(Looper.getMainLooper());
+    volatile int threadID;
 
 
     public PlayerViewManager(@NonNull Context context, ExoPlayer exoPlayer, ConstraintLayout playerView, ConstraintLayout miniPlayerView, ImageView background1, ImageView background2, TextView playerCloseBtn, TextView songTitle, ImageView prevBtn, ImageView nextBtn, ImageView playPause, ImageView repeatBtn, ImageView playlistBtn, ImageView musicIcon, TextView miniSongTitle, TextView miniArtist, ImageView miniNextBtn, ImageView miniPlayPauseBtn, ImageView miniMusicIcon, WaveformSeekBar seekbar, ProgressBar progressBar, TextView currentTime, TextView durationTime) {
@@ -114,8 +115,6 @@ public class PlayerViewManager extends ConstraintLayout {
                 Player.Listener.super.onMediaItemTransition(mediaItem, reason);
                 loadSongData(mediaItem);
                 updatePlayerProgress();
-//                seekbar.set
-//                seekbar.
                 if(reason == 2)
                 {
                     Log.wtf("i dont", "belong here");
@@ -132,6 +131,10 @@ public class PlayerViewManager extends ConstraintLayout {
                     durationTime.setText(convertMMSS(realDurationMillis));
                     progressBar.setMax((int) realDurationMillis);
                     seekbar.setMaxProgress((int) realDurationMillis / 1000);
+                }
+                if (playbackState == ExoPlayer.STATE_ENDED)
+                {
+                    Log.wtf("fast forward", "go down");
                 }
             }
         });
@@ -172,6 +175,10 @@ public class PlayerViewManager extends ConstraintLayout {
             } catch (Exception ignored) {}
         });
 
+        repeatBtn.setOnClickListener(view -> {
+            repeatMode = (repeatMode + 1) % 3;
+        });
+
         miniPlayPauseBtn.setOnClickListener(view -> {
             if (exoPlayer.isPlaying()) {
                 exoPlayer.pause();
@@ -203,14 +210,14 @@ public class PlayerViewManager extends ConstraintLayout {
                     currentTime.setText(convertMMSS(exoPlayer.getCurrentPosition()));
                     progressBar.setProgress((int) exoPlayer.getCurrentPosition());
                     seekbar.setProgress((float) (exoPlayer.getCurrentPosition() / 1000.0));
-                    if(!isBluetoothHeadsetConnected() && Btstatus) {
-                        Log.wtf("paranoid", "BT DISCONNECTED");
-                        playPause.performClick();
-                        Btstatus = false;
-                    }
-                    else if (isBluetoothHeadsetConnected() && !Btstatus) {
-                        Btstatus = true;
-                    }
+//                    if(!isBluetoothHeadsetConnected() && Btstatus) {
+//                        Log.wtf("paranoid", "BT DISCONNECTED");
+//                        playPause.performClick();
+//                        Btstatus = false;
+//                    }
+//                    else if (isBluetoothHeadsetConnected() && !Btstatus) {
+//                        Btstatus = true;
+//                    }
                 }
                 handler.postDelayed(this, 10);
             }
@@ -333,11 +340,16 @@ public class PlayerViewManager extends ConstraintLayout {
     }
 
     private void updateText(String title, String artist) {
+        Log.wtf("threwadid1: ", String.valueOf(android.os.Process.myPid()));
+        threadID += 1;
+        threadID = threadID%10;
         Runnable runnable = new Runnable() {
             int index = 0;
+            int myID = threadID;
             @Override
             public void run() {
-                if (index < title.length()) {
+
+                if (index < title.length() && myID == threadID) {
                     miniSongTitle.setText(title.substring(0, index + 1));
                     index++;
                     handler.postDelayed(this, 100);
@@ -347,9 +359,10 @@ public class PlayerViewManager extends ConstraintLayout {
         handler.postDelayed(runnable, 100);
         runnable = new Runnable() {
             int index = 0;
+            int myID = threadID;
             @Override
             public void run() {
-                if (index < artist.length()) {
+                if (index < artist.length() && myID == threadID) {
                     miniArtist.setText(artist.substring(0, index + 1));
                     index++;
                     handler.postDelayed(this, 100);

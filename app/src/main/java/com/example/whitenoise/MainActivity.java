@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     //main variables
     RecyclerView playlistRecyclerView;
     SearchView searchView;
+    String searchquery;
     ImageView barLeftBtn, barRightBtn;
     ArrayList<Song> allSongs = new ArrayList<>();
     ArrayList<Playlist> allPlaylists = new ArrayList<>();
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     //permissions
     ActivityResultLauncher<String> storagePermissionLauncher;
-    final String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
+    final String permission = Manifest.permission.READ_MEDIA_AUDIO;
     ActivityResultLauncher<String> BTPermissionLauncher;
     final String BTpermission = Manifest.permission.BLUETOOTH_CONNECT;
 
@@ -116,27 +118,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        storagePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-            if (granted) {
-                Log.wtf("main", String.valueOf(Thread.currentThread().getId()));
-                ExecutorService executor = Executors.newSingleThreadExecutor();
-                executor.execute(() -> {
-                    Log.wtf("main", String.valueOf(Thread.currentThread().getId()));
-                    fetch_songs();
-                });
-            } else userResponse();
-        });
-        storagePermissionLauncher.launch(permission);
+//        storagePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+//            if (granted) {
+//                Log.wtf("main", String.valueOf(Thread.currentThread().getId()));
+////                ExecutorService executor = Executors.newSingleThreadExecutor();
+////                executor.execute(this::fetch_songs);
+//                fetch_songs();
+//            } else userResponse();
+//        });
+//        storagePermissionLauncher.launch(permission);
+        CheckStoragePermission();
 
 
-        BTPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-            if (!granted) BTuserResponse();
-        });
-        BTPermissionLauncher.launch(BTpermission);
+//        BTPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+//            if (!granted) BTuserResponse();
+//        });
+//        BTPermissionLauncher.launch(BTpermission);
 
 
 
-        getWindow().setStatusBarColor(ColorUtils.setAlphaComponent(485937, 199));
+        getWindow().setStatusBarColor(ColorUtils.setAlphaComponent(37489, 199));
         getWindow().setNavigationBarColor(ColorUtils.setAlphaComponent(37489, 199));
 
 
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         songTitle = findViewById(R.id.song_Title);
         prevBtn = findViewById(R.id.pre);
         nextBtn = findViewById(R.id.next);
+        repeatBtn = findViewById(R.id.exo_repeat_toggle);
         playPauseBtn = findViewById(R.id.pauseplay);
         musicIcon = findViewById(R.id.music_icon_big);
         seekbar = findViewById(R.id.seek_bar);
@@ -185,13 +187,14 @@ public class MainActivity extends AppCompatActivity {
         setMiniPlayerListener();
         appControls();
         loadMainView();
-//        loadSongsView();
+        loadSongsView();
         searchViewChange(searchView);
         playerControls();
     }
 
     private void setMiniPlayerListener() {
         miniPlayerView.setOnClickListener(view -> {
+            if(songListFragment == null) return;
             this.searchView.setIconified(true);
             this.searchView.onActionViewCollapsed();
             StaticClass.hideKeyboardFrom(this, view);
@@ -261,11 +264,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-//        if (serialized != null) {
-//            for (Song song : serialized) {
-//                Log.wtf("stuck", "Title: " + song.getTitle() + ", Artist: " + song.getArtist() + ", Duration: " + song.getDuration());
-//            }
-//        }
     }
 
 
@@ -303,8 +301,8 @@ public class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
-    private void loadMainView()
-    {
+    private void loadMainView() {
+        searchView.setIconified(true);
         playerView.setVisibility(View.GONE);
         ytPlayerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
@@ -320,8 +318,6 @@ public class MainActivity extends AppCompatActivity {
     private void loadSongsView() {
         playerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
-//        recyclerView.setVisibility(View.VISIBLE);
-        Log.wtf("up", String.valueOf(playlistRecyclerView));
 
         if (songListFragment == null) {
             songListFragment = new SongListFragment();
@@ -330,12 +326,10 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.FragmentLayout, songListFragment);
         fragmentTransaction.commit();
-//        playlistRecyclerLayout.setVisibility(View.GONE);
-//        playlistSongListRecyclerView.setVisibility(View.GONE);
     }
 
-
     private void loadPlaylistView() {
+        searchView.setIconified(true);
         playerView.setVisibility(View.GONE);
         miniPlayerView.setVisibility(View.VISIBLE);
         if (playlistListFragment == null) {
@@ -345,17 +339,9 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.FragmentLayout, playlistListFragment);
         fragmentTransaction.commit();
-//        recyclerView.setVisibility(View.GONE);
-//        playlistRecyclerLayout.setVisibility(View.VISIBLE);
-//        playlistSongListRecyclerView.setVisibility(View.GONE);
-
-//        playlistAdapter.onViewFocused(allPlaylists);
-
-//        allPlaylists.clear();
-//        allPlaylists = songListAdapter.getUpdatedPlaylists();
-        for (Playlist pl : allPlaylists) {
-            Log.wtf("stop this pain tonight", pl.getName());
-        }
+//        for (Playlist pl : allPlaylists) {
+//            Log.wtf("stop this pain tonight", pl.getName());
+//        }
     }
 
 
@@ -369,8 +355,8 @@ public class MainActivity extends AppCompatActivity {
     private void fetch_songs() {
         ArrayList<Song> songs = new ArrayList<>();
         Uri mediaStoreUri;
-        Log.wtf("hello", "?");
-        mediaStoreUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Log.wtf("fetching", String.valueOf(Thread.currentThread().getId()));
+        mediaStoreUri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 
         String[] projection = new String[] {
                 MediaStore.Audio.Media._ID,
@@ -387,6 +373,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         try(Cursor cursor = getContentResolver().query(mediaStoreUri, projection, selection, null, sortOrder)) {
+            if (cursor == null) Log.wtf("cursor", "is null");
+            assert cursor != null;
             int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
             int titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
             int durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
@@ -410,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
 
                 songs.add(song);
             }
+            Log.wtf("songs: ", String.valueOf(songs.size()));
             for (Song ssong : serialized) {
                 for (Song song : songs) {
                     if (Objects.equals(ssong.getPath(), song.getPath())) {
@@ -426,34 +415,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showSongs(ArrayList<Song> songs) {
-        if (songs.size() == 0) {
-//            noMusicTextView.setVisibility(View.VISIBLE);
+        if (songs.isEmpty()) {
             return;
         }
-//        noMusicTextView.setVisibility(View.INVISIBLE);
         allSongs.clear();
         allSongs.addAll(songs);
-
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        songListAdapter = new MusicListAdapter(this, allSongs, allPlaylists, player, notificationIntent);
-//        recyclerView.setAdapter(songListAdapter);
-
-        if (songListFragment == null) {
-            songListFragment = new SongListFragment();
-        }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.FragmentLayout, songListFragment);
-        fragmentTransaction.commit();
-
-//        playlistSongListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        playlistSongListAdapter = new PlaylistSongListAdapter(this, player, view_manager, notificationIntent);
-//
-//        playlistRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-//        playlistAdapter = new PlaylistAdapter(this, allPlaylists, playlistView, playlistSongListAdapter);
-//        playlistRecyclerView.setAdapter(playlistAdapter);
-//
-//        playlistSongListRecyclerView.setAdapter(playlistSongListAdapter);
 
     }
 
@@ -468,9 +434,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (newText.isEmpty()) Log.wtf("empty vessel", newText.toLowerCase());
-                songListFragment.filterSongs(newText.toLowerCase());
-                return true;
+                if (!newText.isEmpty())
+                {
+                    searchquery = newText.toLowerCase();
+                    songListFragment.filterSongs(searchquery);
+                    return true;
+                }
+                return false;
             }
         });
     }
@@ -505,25 +475,26 @@ public class MainActivity extends AppCompatActivity {
         for (Song song:allSongs) {
             if (song.getPath().equals(current.mediaMetadata.composer)) {
                 return song;
-//                song.setImageURL(url);
-//                Log.wtf("ms believer", song.imageURL);
-//                Toast.makeText(MainActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
             }
         }
         return null;
     }
 
 
-    private void userResponse() {
-        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            executor.execute(() -> {
+    private void CheckStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+//            ExecutorService executor = Executors.newSingleThreadExecutor();
+//            executor.execute(() -> {
+            Log.wtf("storage:", "perm granted");
                 fetch_songs();
-            });
-        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (shouldShowRequestPermissionRationale(permission)) {
-                Toast.makeText(MainActivity.this, "ALLOW ACCESS LOSER", Toast.LENGTH_SHORT).show();
-            }
+//            });
+        }else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_MEDIA_AUDIO},
+                    123);
+//            if (shouldShowRequestPermissionRationale(permission)) {
+//                Toast.makeText(MainActivity.this, "ALLOW ACCESS LOSER", Toast.LENGTH_SHORT).show();
+//            }
         }
     }
 

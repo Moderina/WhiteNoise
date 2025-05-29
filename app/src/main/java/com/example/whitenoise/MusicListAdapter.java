@@ -153,7 +153,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ViewHolder0 holder0 = (ViewHolder0) holder;
 
                 Song songData = songList.get(position);
-//        int color = createColor(songData.getTitle());
                 holder0.titleTextView.setText(songData.getTitle());
                 Shader textshader = new LinearGradient(0, 0, holder0.titleTextView.getTextSize(), 0,
                         new int[]{songData.color, 0xfff255cc},
@@ -164,7 +163,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 holder0.artistTextView.setText(songData.getArtist());
                 if(newload)
                     holder0.cardView.startAnimation(AnimationUtils.loadAnimation(holder0.itemView.getContext(), R.anim.fade_in));
-//        else newload = true;
                 holder0.neonbar.getBackground().setColorFilter(songData.color, PorterDuff.Mode.SRC_ATOP);
 
                 holder0.name_change.setVisibility(View.GONE);
@@ -173,7 +171,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 holder0.itemView.setOnClickListener(view -> {
                     yt_playing = false;
-                    youTubePlayer.pause();
+//                    youTubePlayer.pause();
                     Log.wtf("path to self dest", songData.getPath());
                     if (!player.isPlaying()) {
                         player.setMediaItems(getMediaItems(), position, 0);

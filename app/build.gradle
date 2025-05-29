@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'com.example.whitenoise'
-    compileSdk 32
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.whitenoise"
-        minSdk 31
-        targetSdk 32
+        minSdk 34
+        targetSdk 35
         versionCode 1
         versionName "2.5"
 

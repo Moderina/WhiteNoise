@@ -9,7 +9,7 @@
     android:layout_marginTop="56dp"
     android:focusable="true"
     android:clickable="true"
-    android:visibility="gone">
+    android:visibility="visible">
 
     <ImageView
         android:id="@+id/background1"
@@ -105,7 +105,17 @@
 <!--                android:layout_marginEnd="5dp"-->
 <!--                android:layout_marginBottom="5dp"-->
 <!--                android:backgroundTint="@color/black" />-->
-
+        <ImageView
+            android:id="@+id/exo_repeat_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/seek_bar"
+            android:src="@drawable/exo_icon_repeat_one"
+            app:tint="#a3ef00"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"/>
 
         <com.masoudss.lib.WaveformSeekBar
             android:id="@+id/seek_bar"
@@ -113,8 +123,7 @@
             android:layout_height="90dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/max_time"
+            app:layout_constraintTop_toBottomOf="@id/exo_repeat_toggle"
             app:wave_width="3dp"
             app:wave_gap="2dp"
             app:wave_min_height="5dp"

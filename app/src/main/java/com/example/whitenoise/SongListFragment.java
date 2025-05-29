@@ -44,18 +44,14 @@ public class SongListFragment extends Fragment {
     RecyclerView recyclerView;
     MusicListAdapter songListAdapter;
     ArrayList<Song> allSongs;
+    ArrayList<Song> displayedSongs;
     ArrayList<Playlist> allPlaylists;
     ExoPlayer player;
     YouTubePlayerView youTubePlayerView;
     Intent notificationIntent;
 
-
-//    public static SongListFragment newInstance(ArrayList<Song> allSongs, ArrayList<Playlist> allPlaylists, ViewManager view_manager, Intent notificationIntent) {
-//
-//        SongListFragment fragment = new SongListFragment();
-//        Bundle args = new Bundle();
-//        args.putParcelable("allsongs", allSongs);
-//    }
+    private static final int ITEMS_PER_PAGE = 20;
+    private int currentPage = 0;
 
     @Nullable
     @Override
@@ -66,6 +62,7 @@ public class SongListFragment extends Fragment {
 
         MainActivity ma = (MainActivity) getActivity();
         allSongs = ma.allSongs;
+        displayedSongs = new ArrayList<>();
         allPlaylists = ma.allPlaylists;
         player = ma.player;
         youTubePlayerView = ma.youTubePlayerView;
@@ -74,6 +71,8 @@ public class SongListFragment extends Fragment {
         noMusicTextView = view.findViewById(R.id.no_songs);
         ytButton = view.findViewById(R.id.yt_search);
         loading = view.findViewById(R.id.loading_icon);
+
+        loadNextPage();
 
         songListAdapter = new MusicListAdapter((MainActivity) getActivity(), allSongs, allPlaylists, player, notificationIntent);
         recyclerView.setAdapter(songListAdapter);
@@ -93,6 +92,17 @@ public class SongListFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void loadNextPage() {
+        int start = currentPage * ITEMS_PER_PAGE;
+        int end = Math.min((currentPage + 1) * ITEMS_PER_PAGE, allSongs.size());
+
+        if (start < end) {
+            displayedSongs.addAll(allSongs.subList(start, end));
+//            songListAdapter.filterSongs(displayedSongs);
+            currentPage++;
+        }
     }
 
     private void ytSearching() {
@@ -125,13 +135,19 @@ public class SongListFragment extends Fragment {
                         for(int i = 0; i< items.length(); i++) {
                             Log.wtf("item:   ", items.getJSONObject(i).toString());
                             JSONObject item = items.getJSONObject(i);
-                            String vidID = item.getJSONObject("id").getString("videoId");
-                            String title = item.getJSONObject("snippet").getString("title");
-                            String artist = item.getJSONObject("snippet").getString("channelTitle");
-                            String thumbnail = item.getJSONObject("snippet").getJSONObject("thumbnails").getJSONObject("medium").getString("url");
-                            Log.wtf(".", items.getJSONObject(i).toString());
-                            YtSong song = new YtSong(vidID, title, artist, thumbnail);
-                            ytSongs.add(song);
+                            try {
+                                String vidID = item.getJSONObject("id").getString("videoId");
+                                String title = item.getJSONObject("snippet").getString("title");
+                                String artist = item.getJSONObject("snippet").getString("channelTitle");
+                                String thumbnail = item.getJSONObject("snippet").getJSONObject("thumbnails").getJSONObject("medium").getString("url");
+                                Log.wtf(".", items.getJSONObject(i).toString());
+                                YtSong song = new YtSong(vidID, title, artist, thumbnail);
+                                ytSongs.add(song);
+                            }
+                            catch(Exception e) {
+                                Log.wtf("YT Error", e);
+                                continue;
+                            }
                         }
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
