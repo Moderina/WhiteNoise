@@ -14,7 +14,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Title big and artist big too"
-        android:textColor="#a3ef00"
+        android:textColor="#2196F3"
         android:textSize="18dp"/>
 
 
@@ -24,7 +24,11 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/original_title"
-        android:hint="Enter title here" />
+        android:background="@drawable/gradient_bg"
+        android:backgroundTintMode="multiply"
+        android:backgroundTint="#CCF9E0FF"
+        android:layout_marginVertical="10dp"
+        android:hint="   Enter title here" />
 
     <EditText
         android:id="@+id/edit_artist"
@@ -32,7 +36,10 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_title"
-        android:hint="Enter artist here" />
+        android:background="@drawable/gradient_bg"
+        android:backgroundTintMode="multiply"
+        android:layout_marginVertical="10dp"
+        android:hint="   Enter artist here" />
 
     <Button
         android:id="@+id/save_button"

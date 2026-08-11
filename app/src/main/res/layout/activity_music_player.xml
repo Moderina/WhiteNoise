@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="56dp"
+    android:layout_marginTop="96dp"
     android:focusable="true"
     android:clickable="true"
     android:visibility="visible">
@@ -51,7 +51,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_margin="10dp"
         android:background="@drawable/minimalize"
-        android:backgroundTint="#a3ef00">
+        android:backgroundTint="#2196F3">
 
     </TextView>
 
@@ -63,7 +63,7 @@
         app:layout_constraintStart_toEndOf="@id/backBtn"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Alone - falling in reverse"
-        android:textColor="@color/white"
+        android:textColor="#2196F3"
         android:textSize="25dp"
         android:fontFamily="@font/retro"
         android:layout_marginHorizontal="10dp"
@@ -113,7 +113,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/seek_bar"
             android:src="@drawable/exo_icon_repeat_one"
-            app:tint="#a3ef00"
+            app:tint="#f255cc"
             android:layout_centerVertical="true"
             android:layout_alignParentStart="true"/>
 
@@ -128,8 +128,8 @@
             app:wave_gap="2dp"
             app:wave_min_height="5dp"
             app:wave_corner_radius="1dp"
-            app:wave_background_color="#8165e8"
-            app:wave_progress_color="#a3ef00"
+            app:wave_background_color="#7EF255CC"
+            app:wave_progress_color="#f255cc"
             app:wave_gravity="center"
             app:wave_padding_top="2dp"
             app:wave_padding_Bottom="2dp"
@@ -137,7 +137,7 @@
             app:wave_padding_left="2dp"
             app:marker_color="@color/black"
             app:marker_width="1dp"
-            app:marker_text_color="@color/purple_500"
+            app:marker_text_color="#2196F3"
             app:marker_text_padding="2dp"
             app:marker_text_size="12dp" />
 <!--        app:wave_progress_color="#8AF321"-->
@@ -154,7 +154,7 @@
             android:text="0:39"
             android:fontFamily="@font/retro"
             android:textSize="@dimen/m"
-            android:textColor="#8165e8"
+            android:textColor="#2196F3"
             android:layout_alignParentStart="true"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="10dp"
@@ -169,7 +169,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:text="3:19"
             android:fontFamily="@font/retro"
-            android:textColor="#8165e8"
+            android:textColor="#2196F3"
             android:textSize="@dimen/m"
             android:layout_alignParentEnd="true"
             android:layout_marginLeft="10dp"
@@ -191,7 +191,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 android:src="@drawable/pre"
-                app:tint="#a3ef00"
+                app:tint="#f255cc"
                 android:layout_centerVertical="true"
                 android:layout_alignParentStart="true"/>
 
@@ -201,7 +201,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:src="@drawable/next"
-                app:tint="#a3ef00"
+                app:tint="#f255cc"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true" />
 
@@ -212,7 +212,7 @@
                 app:layout_constraintStart_toEndOf="@id/pre"
                 app:layout_constraintEnd_toStartOf="@id/next"
                 android:src="@drawable/pause_icon"
-                app:tint="#a3ef00"
+                app:tint="#f255cc"
                 android:layout_centerInParent="true" />
 <!--            app:tint="#9C4CFF"-->
 

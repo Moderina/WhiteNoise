@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:text="Come Home"
         android:textSize="@dimen/xl"
+        android:textColor="#2196F3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

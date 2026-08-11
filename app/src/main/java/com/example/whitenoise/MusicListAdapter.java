@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -74,7 +76,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public static class ViewHolder0 extends RecyclerView.ViewHolder{ //nw cz ma byc static
 
         TextView titleTextView, artistTextView;
-        CardView cardView;
+        ConstraintLayout cardView;
         ImageView neonbar;
         ImageView name_change, playlistAdd, color_change;
         //        ImageView iconImageView;
@@ -84,7 +86,7 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             titleTextView = itemView.findViewById(R.id.title);
             artistTextView = itemView.findViewById(R.id.artist);
             cardView = itemView.findViewById(R.id.song_card);
-            neonbar = itemView.findViewById(R.id.side_line);
+            neonbar = itemView.findViewById(R.id.song_icon);
             name_change = itemView.findViewById(R.id.name_change);
             playlistAdd = itemView.findViewById(R.id.playlist_add);
             color_change = itemView.findViewById(R.id.color_change);
@@ -154,11 +156,6 @@ public class MusicListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
                 Song songData = songList.get(position);
                 holder0.titleTextView.setText(songData.getTitle());
-                Shader textshader = new LinearGradient(0, 0, holder0.titleTextView.getTextSize(), 0,
-                        new int[]{songData.color, 0xfff255cc},
-                        new float[]{0, 1},
-                        Shader.TileMode.CLAMP);
-                holder0.titleTextView.getPaint().setShader(textshader);
 
                 holder0.artistTextView.setText(songData.getArtist());
                 if(newload)

@@ -4,7 +4,11 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#000000"
+    android:background="@drawable/background"
+    android:backgroundTintMode="screen"
+    android:backgroundTint="#44000000"
+    android:foreground="@drawable/glow_bg"
+    android:foregroundTint="#7FD300FD"
     android:padding="16dp">
 
     <TextView
@@ -14,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Choose playlist"
-        android:textColor="#a3ef00"
+        android:textColor="#2196F3"
         android:textSize="20sp"/>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -26,6 +30,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="12dp"
         android:hint="Select Playlist"
+        android:background="@drawable/gradient_bg"
+        android:backgroundTintMode="multiply"
+        android:backgroundTint="#A9FF8BDB"
+        android:foreground="@drawable/glow_bg"
+        android:foregroundTintMode="multiply"
+        android:foregroundTint="#50FFFFFF"
         app:boxStrokeColor="#a3ef00"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
         app:boxCornerRadiusBottomEnd="@dimen/m">
@@ -46,7 +56,8 @@
         android:layout_height="50dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/save_button"
-        android:hint="Or enter new playlist name here" />
+        android:background="@drawable/gradient_bg"
+        android:hint="   Or enter new playlist name here" />
 
     <Button
         android:id="@+id/save_button"
@@ -55,6 +66,7 @@
         app:layout_constraintTop_toBottomOf="@id/new_playlist_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/gradient_bg"
         android:text="Add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

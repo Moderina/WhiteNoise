@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import androidx.appcompat.widget.SearchView;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     SearchView searchView;
     String searchquery;
     ImageView barLeftBtn, barRightBtn;
+    boolean songView = true;
     ArrayList<Song> allSongs = new ArrayList<>();
     ArrayList<Playlist> allPlaylists = new ArrayList<>();
     ArrayList<Song> serialized = new ArrayList<>();
@@ -142,8 +145,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         searchView = findViewById(R.id.search_view);
-        barLeftBtn = findViewById(R.id.knuck);
-        barRightBtn = findViewById(R.id.knuck2);
+        ((EditText)searchView.findViewById(androidx.appcompat.R.id.search_src_text)).setTextColor(Color.WHITE);
+        barLeftBtn = findViewById(R.id.menu_btn);
+//        barRightBtn = findViewById(R.id.knuck2);
 
         //big player
         background1 = findViewById(R.id.background1);
@@ -270,6 +274,11 @@ public class MainActivity extends AppCompatActivity {
     // VIEW CONTROL - SONG SEARCHING
     public void searchViewChange(SearchView searchView) {
 
+        searchView.setOnClickListener(v -> {
+            searchView.setIconified(false);
+            searchView.requestFocus();
+        });
+
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
@@ -286,8 +295,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void appControls() {
 
-        barLeftBtn.setOnClickListener(view -> {loadMainView();});
-        barRightBtn.setOnClickListener(view -> {loadPlaylistView();});
+        barLeftBtn.setOnClickListener(view -> {
+            if(!songView) {
+                songView = true;
+                loadSongsView();
+            }
+            else {
+                songView = false;
+                loadPlaylistView();
+            }
+        });
+//        barRightBtn.setOnClickListener(view -> {loadPlaylistView();});
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {

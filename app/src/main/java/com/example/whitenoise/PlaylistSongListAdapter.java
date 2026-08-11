@@ -74,7 +74,7 @@ public class PlaylistSongListAdapter extends RecyclerView.Adapter<PlaylistSongLi
             titleTextView = itemView.findViewById(R.id.title);
             artistTextView = itemView.findViewById(R.id.artist);
             cardView = itemView.findViewById(R.id.song_card);
-            neonbar = itemView.findViewById(R.id.side_line);
+            neonbar = itemView.findViewById(R.id.song_icon);
             name_change = itemView.findViewById(R.id.name_change);
             playlistAdd = itemView.findViewById(R.id.playlist_add);
         }
